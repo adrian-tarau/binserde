@@ -19,11 +19,15 @@
 
 package com.github.binserde.metadata;
 
+import com.github.binserde.SerializerFactory;
 import com.github.binserde.io.Decoder;
+import com.github.binserde.io.Encoder;
 import com.github.binserde.utils.ArgumentUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+
+import static com.github.binserde.metadata.DataType.OBJECT;
 
 public class FieldInfo {
 
@@ -31,35 +35,70 @@ public class FieldInfo {
     public static final byte NO_TAG = -1;
 
     private final String name;
-    private final byte dataType;
-
-    private byte version = NO_VERSION;
-    private short tag = NO_TAG;
+    private final DataType dataType;
+    private final boolean primitive;
+    private final short classIdentifier;
 
     private Field field;
-    private long fieldOffset;
 
-    public static FieldInfo create(String name, byte dataType) {
-        FieldInfo fieldInfo = new FieldInfo(name, dataType);
+    public static FieldInfo create(Field field) {
+        ArgumentUtils.requireNonNull(field);
+        DataType dataType = DataTypes.getDataType(field.getType());
+        short identifier = dataType == OBJECT ? SerializerFactory.getInstance().getIdentifier(field.getType()) : -1;
+        FieldInfo fieldInfo = new FieldInfo(field.getName(), dataType, field.getType().isPrimitive(), identifier);
+        fieldInfo.field = field;
         return fieldInfo;
     }
 
     public static FieldInfo create(Decoder decoder) throws IOException {
-        FieldInfo fieldInfo = new FieldInfo(decoder.readString(), decoder.readByte());
+        ArgumentUtils.requireNonNull(decoder);
+        FieldInfo fieldInfo = new FieldInfo(decoder.readString(), DataType.fromId(decoder.readByte()), decoder.readBoolean(), decoder.readShort());
         return fieldInfo;
     }
 
-    private FieldInfo(String name, byte dataType) {
+    private FieldInfo(String name, DataType dataType, boolean primitive, short classIdentifier) {
         ArgumentUtils.requireNonNull(name);
         this.name = name;
         this.dataType = dataType;
+        this.primitive = primitive;
+        this.classIdentifier = classIdentifier;
     }
 
     public String getName() {
         return name;
     }
 
-    public byte getDataType() {
+    public DataType getDataType() {
         return dataType;
+    }
+
+    public boolean isPrimitive() {
+        return primitive;
+    }
+
+    public short getClassIdentifier() {
+        return classIdentifier;
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    void store(Encoder encoder) throws IOException {
+        encoder.writeString(name);
+        encoder.writeByte((byte) dataType.ordinal());
+        encoder.writeBoolean(primitive);
+        encoder.writeShort(classIdentifier);
+    }
+
+    @Override
+    public String toString() {
+        return "FieldInfo{" +
+                "name='" + name + '\'' +
+                ", dataType=" + dataType +
+                ", primitive=" + primitive +
+                ", classIdentifier=" + classIdentifier +
+                ", field=" + field +
+                '}';
     }
 }

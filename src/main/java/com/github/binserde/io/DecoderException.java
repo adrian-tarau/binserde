@@ -19,28 +19,15 @@
 
 package com.github.binserde.io;
 
-import java.io.IOException;
+import com.github.binserde.BaseException;
 
-public interface Encoder extends AutoCloseable {
+public class DecoderException extends BaseException {
 
-    void writeBoolean(boolean value) throws IOException;
+    public DecoderException(String message) {
+        super(message);
+    }
 
-    void writeByte(byte value) throws IOException;
-
-    void writeShort(short value) throws IOException;
-
-    void writeInteger(int value) throws IOException;
-
-    void writeLong(long value) throws IOException;
-
-    void writeFloat(float value) throws IOException;
-
-    void writeDouble(double value) throws IOException;
-
-    void writeCharacter(char value) throws IOException;
-
-    void writeString(String value) throws IOException;
-
-    @Override
-    void close() throws IOException;
+    public DecoderException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

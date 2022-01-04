@@ -23,4 +23,11 @@ public class ClassUtils {
 
     public static final int MIN_CLASS_ID = 100;
     public static final int MAX_CLASS_ID = 20_000;
+
+    public static boolean isSubclass(Class<?> clazz, Class<?> superClass) {
+        ArgumentUtils.requireNonNull(clazz);
+        ArgumentUtils.requireNonNull(superClass);
+
+        return superClass.isAssignableFrom(clazz);
+    }
 }

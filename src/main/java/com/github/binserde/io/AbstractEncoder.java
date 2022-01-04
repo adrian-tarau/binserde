@@ -19,92 +19,155 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.metadata.DataTypes;
+
 import java.io.IOException;
-import java.util.Arrays;
 
 import static com.github.binserde.io.IOUtils.BUFFER_SIZE;
 import static com.github.binserde.io.IOUtils.RESERVED_HEADER;
+import static com.github.binserde.metadata.DataTypes.*;
 
 public abstract class AbstractEncoder implements Encoder {
 
-    private byte[] buffer = new byte[BUFFER_SIZE];
+    private final byte[] buffer = new byte[BUFFER_SIZE];
     private int position = RESERVED_HEADER;
+
+    @Override
+    public final void writeBoolean(boolean value) throws IOException {
+        writeRawByte((byte) (DataTypes.BOOLEAN | (value ? 1 : 0)));
+    }
 
     @Override
     public final void writeByte(byte value) throws IOException {
         if (value >= 0) {
-            position = writeRawByte(position, value);
+            writeRawByte(value);
+        } else if (value >= LARGEST_SMALL_NEGATIVE_VALUE) {
+            value = (byte) -value;
+            writeRawByte((byte) (DataTypes.SMALL_INT_NEGATIVE_MASK | value));
+        } else {
+            writeRawByte((byte) (BASE | BASE_INT16));
+            writeRawShort(value);
         }
     }
 
     @Override
-    public final void writeBoolean(boolean value) throws IOException {
-
+    public final void writeShort(short value) throws IOException {
+        if (value >= 0 && value <= LARGEST_SMALL_POSITIVE) {
+            writeRawByte((byte) value);
+        } else if (value < 0 && value >= LARGEST_SMALL_NEGATIVE_VALUE) {
+            value = (byte) -value;
+            writeRawByte((byte) (DataTypes.SMALL_INT_NEGATIVE_MASK | value));
+        } else {
+            writeRawByte((byte) (BASE | BASE_INT16));
+            writeRawShort(value);
+        }
     }
 
     @Override
-    public final void writeShort(byte value) throws IOException {
-
+    public final void writeInteger(int value) throws IOException {
+        if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
+            writeShort((short) value);
+        } else {
+            writeRawByte((byte) (BASE | BASE_INT32));
+            writeRawInteger(value);
+        }
     }
 
     @Override
-    public final void writeInteger(byte value) throws IOException {
-
+    public final void writeLong(long value) throws IOException {
+        if (value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) {
+            writeInteger((int) value);
+        } else {
+            writeRawByte((byte) (BASE | BASE_INT64));
+            writeRawLong(value);
+        }
     }
 
     @Override
-    public final void writeLong(byte value) throws IOException {
-
+    public final void writeFloat(float value) throws IOException {
+        writeRawByte((byte) (BASE | BASE_FLOAT32));
+        writeRawInteger(Float.floatToIntBits(value));
     }
 
     @Override
-    public final void writeFloat(byte value) throws IOException {
-
+    public final void writeDouble(double value) throws IOException {
+        writeRawByte((byte) (BASE | BASE_FLOAT64));
+        writeRawLong(Double.doubleToLongBits(value));
     }
 
     @Override
-    public final void writeDouble(byte value) throws IOException {
-
+    public void writeCharacter(char value) throws IOException {
+        writeShort((short) value);
     }
 
     @Override
     public final void writeString(String value) throws IOException {
-
+        if (value == null) {
+            writeRawByte(NULL);
+        } else if (value.length() <= LARGEST_SMALL_LENGTH) {
+            writeRawByte((byte) (STRING | value.length()));
+            writeRawString(value);
+        } else if (value.length() <= Short.MAX_VALUE) {
+            writeRawByte((byte) (BASE | BASE_STRING16));
+            writeRawShort((short) value.length());
+            writeRawString(value);
+        }
     }
 
-    abstract void write(byte[] data, int offset, int length) throws IOException;
+    abstract void write(byte[] buffer, int offset, int length) throws IOException;
 
-    private void flush() throws IOException {
-        int hash = Arrays.hashCode(buffer);
-        writeRawShort(0, (short) (BUFFER_SIZE - position - RESERVED_HEADER));
-        writeRawInteger(2, hash);
+    protected final void flush() throws IOException {
+        short length = (short) (position - RESERVED_HEADER);
+        short totalLength = (short) position;
+        int hash = IOUtils.hashCode(buffer, RESERVED_HEADER, length);
+        position = 0;
+        writeRawShort(length);
+        writeRawInteger(hash);
+        write(buffer, 0, totalLength);
     }
 
     private void require(int required) throws IOException {
-        if (BUFFER_SIZE - position >= required) ;
-        flush();
-        write(buffer, 0, position + 4);
+        if (BUFFER_SIZE - position < required) {
+            flush();
+        }
     }
 
-    private int writeRawByte(int position, byte value) throws IOException {
+    private void writeRawByte(byte value) throws IOException {
         require(1);
         buffer[position++] = value;
-        return position;
     }
 
-    private int writeRawShort(int position, short value) throws IOException {
+    private void writeRawShort(short value) throws IOException {
         require(2);
-        buffer[position++] = (byte) value;
         buffer[position++] = (byte) (value >> 8);
-        return position;
+        buffer[position++] = (byte) (value >> 0);
     }
 
-    private int writeRawInteger(int position, int value) throws IOException {
+    private void writeRawInteger(int value) throws IOException {
         require(4);
-        buffer[position++] = (byte) value;
-        buffer[position++] = (byte) (value >> 8);
+        buffer[position++] = (byte) (value >>> 24);
         buffer[position++] = (byte) (value >> 16);
-        buffer[position++] = (byte) (value >> 24);
-        return position;
+        buffer[position++] = (byte) (value >>> 8);
+        buffer[position++] = (byte) (value >>> 0);
+    }
+
+    private void writeRawLong(long value) throws IOException {
+        require(8);
+        buffer[position++] = (byte) (value >>> 56);
+        buffer[position++] = (byte) (value >>> 48);
+        buffer[position++] = (byte) (value >>> 40);
+        buffer[position++] = (byte) (value >>> 32);
+        buffer[position++] = (byte) (value >>> 24);
+        buffer[position++] = (byte) (value >> 16);
+        buffer[position++] = (byte) (value >>> 8);
+        buffer[position++] = (byte) (value >>> 0);
+    }
+
+    private void writeRawString(String value) throws IOException {
+        int length = value.length();
+        require(length * 2);
+        for (int index = 0; index < length; index++) {
+            writeRawShort((short) value.charAt(index));
+        }
     }
 }

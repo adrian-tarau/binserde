@@ -21,21 +21,25 @@ package com.github.binserde.io;
 
 import java.io.IOException;
 
-public interface Decoder {
+public interface Decoder extends AutoCloseable{
 
-    short readBoolean() throws IOException;
+    boolean readBoolean() throws IOException;
 
     byte readByte() throws IOException;
 
     short readShort() throws IOException;
 
-    short readInteger() throws IOException;
+    int readInteger() throws IOException;
 
-    short readLong() throws IOException;
+    long readLong() throws IOException;
 
-    short readFloat() throws IOException;
+    float readFloat() throws IOException;
 
-    short readDouble() throws IOException;
+    double readDouble() throws IOException;
+
+    char readCharacter() throws IOException;
 
     String readString() throws IOException;
+
+    void close() throws IOException;
 }

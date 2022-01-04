@@ -24,4 +24,23 @@ class IOUtils {
     static final int BUFFER_SIZE = 16 * 1024;
     static final int RESERVED_HEADER = 6;
     static final byte[] HEADER = {(byte) 0xA8, 0x75, (byte) 0xe7, 0x23};
+
+    /**
+     * Returns a hash code based on the contents of the specified array.
+     *
+     * @param buffer the array whose hash value to compute
+     * @param offset the offset of the first byte
+     * @param length the number of bytes to calculate the hash
+     * @return a content-based hash code for {@code a}
+     */
+    public static int hashCode(byte[] buffer, int offset, int length) {
+        if (buffer == null) return 0;
+
+        int result = 1;
+        int endIndex = offset + length;
+        for (int index = offset; index < endIndex; index++) {
+            result = 31 * result + buffer[index];
+        }
+        return result;
+    }
 }

@@ -17,30 +17,44 @@
  * under the License.
  */
 
-package com.github.binserde.io;
+package com.github.binserde.metadata;
 
-import java.io.IOException;
+public enum DataType {
 
-public interface Encoder extends AutoCloseable {
+    BOOLEAN,
+    CHARACTER,
+    BYTE,
+    SHORT,
+    INTEGER,
+    LONG,
+    FLOAT,
+    DOUBLE,
+    STRING,
+    BIG_INTEGER,
+    BIG_DECIMAL,
 
-    void writeBoolean(boolean value) throws IOException;
+    LIST,
+    SET,
+    SORTED_SET,
+    QUEUE,
+    DEQUE,
+    MAP,
+    SORTED_MAP,
 
-    void writeByte(byte value) throws IOException;
+    TIME_DURATION,
+    TIME_INSTANT,
+    TIME_LOCAL_DATE,
+    TIME_LOCAL_TIME,
+    TIME_LOCAL_DATETIME,
+    TIME_OFFSET_DATETIME,
+    TIME_ZONED_DATETIME,
+    TIME_PERIOD,
+    TIME_ZONE_ID,
+    TIME_ZONE_OFFSET,
 
-    void writeShort(short value) throws IOException;
+    OBJECT;
 
-    void writeInteger(int value) throws IOException;
-
-    void writeLong(long value) throws IOException;
-
-    void writeFloat(float value) throws IOException;
-
-    void writeDouble(double value) throws IOException;
-
-    void writeCharacter(char value) throws IOException;
-
-    void writeString(String value) throws IOException;
-
-    @Override
-    void close() throws IOException;
+    public static DataType fromId(byte value) {
+        return DataType.values()[value];
+    }
 }

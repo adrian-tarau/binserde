@@ -95,7 +95,7 @@ public class SerializerFactory {
      */
     public short getIdentifier(Class<?> clazz) {
         ArgumentUtils.requireNonNull(clazz);
-        Short identifier = idsByClasses.get(classesById);
+        Short identifier = idsByClasses.get(clazz);
         if (identifier == null) throw new MetadataException("Class '" + identifier + "' is not registered");
         return identifier;
     }
@@ -111,5 +111,13 @@ public class SerializerFactory {
         Class<?> clazz = classesById.get((short) identifier);
         if (clazz == null) throw new MetadataException("Identifier '" + identifier + "' is not registered");
         return clazz;
+    }
+
+    /**
+     * Resets the factory.
+     */
+    void reset() {
+        idsByClasses.clear();
+        classesById.clear();
     }
 }

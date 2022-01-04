@@ -17,30 +17,14 @@
  * under the License.
  */
 
-package com.github.binserde.io;
+package com.github.binserde.annotation;
 
-import java.io.IOException;
+import java.lang.annotation.*;
 
-public interface Encoder extends AutoCloseable {
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.FIELD})
+@Documented
+public @interface Tag {
 
-    void writeBoolean(boolean value) throws IOException;
-
-    void writeByte(byte value) throws IOException;
-
-    void writeShort(short value) throws IOException;
-
-    void writeInteger(int value) throws IOException;
-
-    void writeLong(long value) throws IOException;
-
-    void writeFloat(float value) throws IOException;
-
-    void writeDouble(double value) throws IOException;
-
-    void writeCharacter(char value) throws IOException;
-
-    void writeString(String value) throws IOException;
-
-    @Override
-    void close() throws IOException;
+    short value();
 }

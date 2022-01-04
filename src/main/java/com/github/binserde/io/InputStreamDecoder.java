@@ -19,28 +19,27 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.utils.ArgumentUtils;
+
 import java.io.IOException;
+import java.io.InputStream;
 
-public interface Encoder extends AutoCloseable {
+public class InputStreamDecoder extends AbstractDecoder {
 
-    void writeBoolean(boolean value) throws IOException;
+    private final InputStream inputStream;
 
-    void writeByte(byte value) throws IOException;
-
-    void writeShort(short value) throws IOException;
-
-    void writeInteger(int value) throws IOException;
-
-    void writeLong(long value) throws IOException;
-
-    void writeFloat(float value) throws IOException;
-
-    void writeDouble(double value) throws IOException;
-
-    void writeCharacter(char value) throws IOException;
-
-    void writeString(String value) throws IOException;
+    public InputStreamDecoder(InputStream inputStream) {
+        ArgumentUtils.requireNonNull(inputStream);
+        this.inputStream = inputStream;
+    }
 
     @Override
-    void close() throws IOException;
+    int read(byte[] buffer, int offset, int length) throws IOException {
+        return inputStream.read(buffer, offset, length);
+    }
+
+    @Override
+    public void close() throws IOException {
+        inputStream.close();
+    }
 }

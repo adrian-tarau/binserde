@@ -34,12 +34,13 @@ public class OutputStreamEncoder extends AbstractEncoder {
     }
 
     @Override
-    void write(byte[] data, int offset, int length) throws IOException {
-        outputStream.write(data, offset, length);
+    void write(byte[] buffer, int offset, int length) throws IOException {
+        outputStream.write(buffer, offset, length);
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
+        flush();
         outputStream.close();
     }
 }

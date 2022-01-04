@@ -17,30 +17,19 @@
  * under the License.
  */
 
-package com.github.binserde.io;
+package com.github.binserde.dto;
 
-import java.io.IOException;
+import com.github.binserde.SerializerFactory;
 
-public interface Encoder extends AutoCloseable {
+public class DtoUtils {
 
-    void writeBoolean(boolean value) throws IOException;
+    private static int CLASS_ID = 100;
 
-    void writeByte(byte value) throws IOException;
+    public static void init() {
+        SerializerFactory serializerFactory = SerializerFactory.getInstance();
+        serializerFactory.register(Person.class, CLASS_ID++);
+        serializerFactory.register(Address.class, CLASS_ID++);
+        serializerFactory.register(Order.class, CLASS_ID++);
+    }
 
-    void writeShort(short value) throws IOException;
-
-    void writeInteger(int value) throws IOException;
-
-    void writeLong(long value) throws IOException;
-
-    void writeFloat(float value) throws IOException;
-
-    void writeDouble(double value) throws IOException;
-
-    void writeCharacter(char value) throws IOException;
-
-    void writeString(String value) throws IOException;
-
-    @Override
-    void close() throws IOException;
 }

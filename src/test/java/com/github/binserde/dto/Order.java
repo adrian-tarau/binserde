@@ -17,30 +17,45 @@
  * under the License.
  */
 
-package com.github.binserde.io;
+package com.github.binserde.dto;
 
-import java.io.IOException;
+public class Order {
 
-public interface Encoder extends AutoCloseable {
+    private Person person;
+    private Address address;
 
-    void writeBoolean(boolean value) throws IOException;
+    private float amount;
+    private float count;
 
-    void writeByte(byte value) throws IOException;
+    public Person getPerson() {
+        return person;
+    }
 
-    void writeShort(short value) throws IOException;
+    public void setPerson(Person person) {
+        this.person = person;
+    }
 
-    void writeInteger(int value) throws IOException;
+    public Address getAddress() {
+        return address;
+    }
 
-    void writeLong(long value) throws IOException;
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
-    void writeFloat(float value) throws IOException;
+    public float getAmount() {
+        return amount;
+    }
 
-    void writeDouble(double value) throws IOException;
+    public void setAmount(float amount) {
+        this.amount = amount;
+    }
 
-    void writeCharacter(char value) throws IOException;
+    public float getCount() {
+        return count;
+    }
 
-    void writeString(String value) throws IOException;
-
-    @Override
-    void close() throws IOException;
+    public void setCount(float count) {
+        this.count = count;
+    }
 }

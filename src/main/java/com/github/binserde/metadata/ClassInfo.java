@@ -21,17 +21,20 @@ package com.github.binserde.metadata;
 
 import com.github.binserde.SerializerFactory;
 import com.github.binserde.io.Decoder;
+import com.github.binserde.io.Encoder;
 import com.github.binserde.utils.ArgumentUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class ClassInfo {
 
     private Class<?> clazz;
+    private String name;
     private short identifier;
-    private Collection<FieldInfo> fields = new ArrayList<>();
+    private Map<String, FieldInfo> fieldsByName = new HashMap<>();
+    private List<FieldInfo> fieldsByIndex = new ArrayList<>();
 
     public static ClassInfo create(Class<?> clazz) {
         short identifier = SerializerFactory.getInstance().getIdentifier(clazz);
@@ -51,6 +54,7 @@ public class ClassInfo {
     private ClassInfo(Class<?> clazz, short identifier) {
         ArgumentUtils.requireNonNull(clazz);
         this.identifier = identifier;
+        this.name = clazz.getSimpleName();
         this.clazz = clazz;
     }
 
@@ -58,17 +62,60 @@ public class ClassInfo {
         return clazz;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public short getIdentifier() {
         return identifier;
     }
 
+    public FieldInfo getField(String name) {
+        ArgumentUtils.requireNonNull(name);
+        FieldInfo fieldInfo = fieldsByName.get(name.toLowerCase());
+        if (fieldInfo == null) throw new MetadataException("A field with name '" + name + "' does not exist");
+        return fieldInfo;
+    }
+
+    public FieldInfo getField(int index) {
+        return fieldsByIndex.get(index);
+    }
+
+    public List<FieldInfo> getFields() {
+        return Collections.unmodifiableList(fieldsByIndex);
+    }
+
     private void load() {
+        Class<?> rootClass = clazz;
+        while (rootClass != Object.class) {
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                FieldInfo fieldInfo = FieldInfo.create(field);
+                String name = fieldInfo.getName();
+                if (fieldsByName.containsKey(name.toLowerCase()))
+                    throw new MetadataException("A field with name '" + name + "' is already registered with "
+                            + rootClass.getName());
+                fieldsByName.put(name.toLowerCase(), fieldInfo);
+                fieldsByIndex.add(fieldInfo);
+            }
+            rootClass = rootClass.getSuperclass();
+        }
+    }
+
+    void load(Decoder decoder) throws IOException {
 
     }
 
-    private void load(Decoder decoder) throws IOException {
+    void store(Encoder encoder) {
 
     }
 
-
+    @Override
+    public String toString() {
+        return "ClassInfo{" +
+                "clazz=" + clazz.getName() +
+                ", identifier=" + identifier +
+                ", fields=" + fieldsByIndex +
+                '}';
+    }
 }
