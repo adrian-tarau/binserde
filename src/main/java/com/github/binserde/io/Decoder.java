@@ -19,9 +19,13 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.metadata.ClassInfo;
+
 import java.io.IOException;
 
 public interface Decoder extends AutoCloseable{
+
+    byte peekTag() throws IOException;
 
     boolean readBoolean() throws IOException;
 
@@ -40,6 +44,8 @@ public interface Decoder extends AutoCloseable{
     char readCharacter() throws IOException;
 
     String readString() throws IOException;
+
+    ClassInfo readClass() throws IOException;
 
     void close() throws IOException;
 }

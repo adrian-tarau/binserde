@@ -19,6 +19,8 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.metadata.ClassInfo;
+
 import java.io.IOException;
 
 public interface Encoder extends AutoCloseable {
@@ -40,6 +42,8 @@ public interface Encoder extends AutoCloseable {
     void writeCharacter(char value) throws IOException;
 
     void writeString(String value) throws IOException;
+
+    void writeClass(ClassInfo clazz) throws IOException;
 
     @Override
     void close() throws IOException;

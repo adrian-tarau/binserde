@@ -19,6 +19,9 @@
 
 package com.github.binserde.dto;
 
+import com.github.binserde.annotation.Tag;
+
+@Tag(200)
 public class Order {
 
     private Person person;

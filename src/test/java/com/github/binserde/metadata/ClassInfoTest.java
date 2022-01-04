@@ -50,7 +50,10 @@ class ClassInfoTest {
         ClassInfo classInfo = ClassInfo.create(Person.class);
         assertEquals("Person", classInfo.getName());
         assertEquals(Person.class, classInfo.getClazz());
-        assertEquals(4, classInfo.getFields().size());
+        assertEquals(3, classInfo.getFields().size());
+        assertEquals("firstName", classInfo.getField("firstname").getName());
+        assertEquals("firstName", classInfo.getField(0).getName());
+        assertEquals(100, classInfo.getIdentifier());
     }
 
     @Test
@@ -59,12 +62,13 @@ class ClassInfoTest {
         assertEquals("Order", classInfo.getName());
         assertEquals(Order.class, classInfo.getClazz());
         assertEquals(4, classInfo.getFields().size());
+        assertEquals(200, classInfo.getIdentifier());
     }
 
     @Test
     void validaToString() throws Exception {
         ClassInfo classInfo = ClassInfo.create(Person.class);
-        assertEquals("ClassInfo{clazz=com.github.binserde.dto.Person, identifier=100, fields=[FieldInfo{name='ID', dataType=INTEGER, primitive=true, classIdentifier=-1, field=public static final int com.github.binserde.dto.Person.ID}, FieldInfo{name='firstName', dataType=STRING, primitive=false, classIdentifier=-1, field=private java.lang.String com.github.binserde.dto.Person.firstName}, FieldInfo{name='lastName', dataType=STRING, primitive=false, classIdentifier=-1, field=private java.lang.String com.github.binserde.dto.Person.lastName}, FieldInfo{name='age', dataType=INTEGER, primitive=true, classIdentifier=-1, field=private int com.github.binserde.dto.Person.age}]}", classInfo.toString());
+        assertEquals("ClassInfo{clazz=com.github.binserde.dto.Person, identifier=100, fields=[FieldInfo{name='firstName', dataType=STRING, primitive=false, classIdentifier=-1, field=private java.lang.String com.github.binserde.dto.Person.firstName}, FieldInfo{name='lastName', dataType=STRING, primitive=false, classIdentifier=-1, field=private java.lang.String com.github.binserde.dto.Person.lastName}, FieldInfo{name='age', dataType=INTEGER, primitive=true, classIdentifier=-1, field=private int com.github.binserde.dto.Person.age}]}", classInfo.toString());
     }
 
 }

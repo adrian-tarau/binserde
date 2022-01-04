@@ -31,7 +31,7 @@ public abstract class AbstractSerializer<T> implements Serializer<T> {
     }
 
     @Override
-    public Class<T> getType() {
+    public final Class<T> getType() {
         return type;
     }
 }

@@ -19,6 +19,7 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.metadata.ClassInfo;
 import com.github.binserde.metadata.DataTypes;
 
 import java.io.IOException;
@@ -32,6 +33,11 @@ public abstract class AbstractDecoder implements Decoder {
     private final byte[] buffer = new byte[BUFFER_SIZE];
     private int position = RESERVED_HEADER;
     private int length = 0;
+
+    @Override
+    public byte peekTag() throws IOException {
+        return buffer[position];
+    }
 
     @Override
     public final boolean readBoolean() throws IOException {
@@ -153,6 +159,16 @@ public abstract class AbstractDecoder implements Decoder {
             }
         }
         throw new DecoderException("Cannot decode byte, tag " + DataTypes.tagToString(tag));
+    }
+
+    @Override
+    public ClassInfo readClass() throws IOException {
+        byte tag = readRawByte();
+        if (DataTypes.isClass(tag)) {
+            return ClassInfo.create(this);
+        } else {
+            throw new DecoderException("Cannot decode class, tag " + DataTypes.tagToString(tag));
+        }
     }
 
     abstract int read(byte[] buffer, int offset, int length) throws IOException;

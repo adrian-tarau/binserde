@@ -19,19 +19,16 @@
 
 package com.github.binserde.deserializer;
 
-import static com.github.binserde.utils.ArgumentUtils.requireNonNull;
+import com.github.binserde.io.Decoder;
 
-public abstract class AbstractDeserializer<T> implements Deserializer<T> {
+public class ReflectionDeserializer<T> extends AbstractDeserializer<T> {
 
-    private final Class<T> type;
-
-    public AbstractDeserializer(Class<T> type) {
-        requireNonNull(type);
-        this.type = type;
+    public ReflectionDeserializer(Class<T> type) {
+        super(type);
     }
 
     @Override
-    public final Class<T> getType() {
-        return type;
+    public T deserialize(Decoder decoder) {
+        return null;
     }
 }

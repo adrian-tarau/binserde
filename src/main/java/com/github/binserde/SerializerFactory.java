@@ -19,6 +19,7 @@
 
 package com.github.binserde;
 
+import com.github.binserde.annotation.Tag;
 import com.github.binserde.metadata.MetadataException;
 import com.github.binserde.utils.ArgumentUtils;
 
@@ -49,6 +50,18 @@ public class SerializerFactory {
     }
 
     private SerializerFactory() {
+    }
+
+    /**
+     * Registers a new class. The class needs to be tagged with {@link  com.github.binserde.annotation.Tag}
+     *
+     * @param clazz the class
+     */
+    public void register(Class<?> clazz) {
+        requireNonNull(clazz);
+        Tag tagAnnot = clazz.getAnnotation(Tag.class);
+        if (tagAnnot == null) throw new IllegalArgumentException("Class must have a @Tag annotation");
+        register(clazz, tagAnnot.value());
     }
 
     /**
@@ -96,7 +109,7 @@ public class SerializerFactory {
     public short getIdentifier(Class<?> clazz) {
         ArgumentUtils.requireNonNull(clazz);
         Short identifier = idsByClasses.get(clazz);
-        if (identifier == null) throw new MetadataException("Class '" + identifier + "' is not registered");
+        if (identifier == null) throw new MetadataException("Class '" + clazz.getName() + "' is not registered");
         return identifier;
     }
 

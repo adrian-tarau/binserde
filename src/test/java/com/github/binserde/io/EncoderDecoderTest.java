@@ -19,6 +19,10 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.dto.DtoUtils;
+import com.github.binserde.dto.Order;
+import com.github.binserde.dto.Person;
+import com.github.binserde.metadata.ClassInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -219,6 +223,7 @@ class EncoderDecoderTest {
         encoder.writeCharacter('a');
         encoder.close();
         createDecoder();
+        assertEquals(10, outputStream.size());
         assertEquals(' ', decoder.readCharacter());
         assertEquals('0', decoder.readCharacter());
         assertEquals('A', decoder.readCharacter());
@@ -234,11 +239,28 @@ class EncoderDecoderTest {
         encoder.writeString(generateString(200));
         encoder.close();
         createDecoder();
+        assertEquals(449, outputStream.size());
         assertEquals(null, decoder.readString());
         assertEquals("", decoder.readString());
         assertEquals(generateString(3), decoder.readString());
         assertEquals(generateString(15), decoder.readString());
         assertEquals(generateString(200), decoder.readString());
+    }
+
+    @Test
+    void classes() throws IOException {
+        DtoUtils.init();
+        encoder.writeClass(ClassInfo.create(Person.class));
+        encoder.writeClass(ClassInfo.create(Order.class));
+        encoder.close();
+        createDecoder();
+        assertEquals(154, outputStream.size());
+        ClassInfo classInfo = decoder.readClass();
+        assertEquals(100, classInfo.getIdentifier());
+        assertEquals(3, classInfo.getFields().size());
+        classInfo = decoder.readClass();
+        assertEquals(200, classInfo.getIdentifier());
+        assertEquals(4, classInfo.getFields().size());
     }
 
     private void createDecoder() {

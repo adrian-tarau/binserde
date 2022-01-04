@@ -21,9 +21,9 @@ package com.github.binserde.serializer;
 
 import com.github.binserde.io.Encoder;
 
-public class RootSerializer<T> extends AbstractSerializer<T> {
+public class ReflectionSerializer<T> extends AbstractSerializer<T> {
 
-    public RootSerializer(Class<T> type) {
+    public ReflectionSerializer(Class<T> type) {
         super(type);
     }
 

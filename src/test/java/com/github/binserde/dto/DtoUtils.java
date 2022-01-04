@@ -23,13 +23,14 @@ import com.github.binserde.SerializerFactory;
 
 public class DtoUtils {
 
-    private static int CLASS_ID = 100;
+    private static int CLASS_ID;
 
     public static void init() {
+        CLASS_ID = 100;
         SerializerFactory serializerFactory = SerializerFactory.getInstance();
         serializerFactory.register(Person.class, CLASS_ID++);
         serializerFactory.register(Address.class, CLASS_ID++);
-        serializerFactory.register(Order.class, CLASS_ID++);
+        serializerFactory.register(Order.class);
     }
 
 }

@@ -19,7 +19,9 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.metadata.ClassInfo;
 import com.github.binserde.metadata.DataTypes;
+import com.github.binserde.utils.ArgumentUtils;
 
 import java.io.IOException;
 
@@ -112,6 +114,13 @@ public abstract class AbstractEncoder implements Encoder {
             writeRawShort((short) value.length());
             writeRawString(value);
         }
+    }
+
+    @Override
+    public void writeClass(ClassInfo clazz) throws IOException {
+        ArgumentUtils.requireNonNull(clazz);
+        writeRawByte((byte) (BASE | BASE_CLASS));
+        clazz.store(this);
     }
 
     abstract void write(byte[] buffer, int offset, int length) throws IOException;

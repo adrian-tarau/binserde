@@ -93,6 +93,10 @@ public class DataTypes {
         return value == (BASE | BASE_FLOAT64);
     }
 
+    public static boolean isClass(byte value) {
+        return value == (BASE | BASE_CLASS);
+    }
+
     public static boolean isBoolean(byte value) {
         return (value & SMALL_INT_NEGATIVE_MASK) == BOOLEAN;
     }
