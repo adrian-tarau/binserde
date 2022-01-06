@@ -17,15 +17,20 @@
  * under the License.
  */
 
-package com.github.binserde.deserializer;
+package com.github.binserde.serializer;
 
-import com.github.binserde.io.Decoder;
+import com.github.binserde.io.Encoder;
+import com.github.binserde.metadata.FieldInfo;
 
 import java.io.IOException;
 
-public interface Deserializer<T> {
+abstract class ReflectionFieldSerializer {
 
-    Class<T> getType();
+    private final ReflectionSerializer<?> parent;
 
-    T deserialize(Decoder decoder) throws IOException;
+    public ReflectionFieldSerializer(ReflectionSerializer<?> parent) {
+        this.parent = parent;
+    }
+
+    abstract void serialize(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException;
 }

@@ -49,21 +49,22 @@ public class DataTypes {
     public static final byte OBJECT = (byte) (0x80 + 0x60);
 
     // 4 byte codes for larger class metadata,  primitives & collections
-    public static final byte BASE_CLASS = 0x00;
-    public static final byte BASE_INT16 = 0x01;
-    public static final byte BASE_INT32 = 0x02;
-    public static final byte BASE_INT64 = 0x03;
-    public static final byte BASE_FLOAT32 = 0x04;
-    public static final byte BASE_FLOAT64 = 0x05;
-    public static final byte BASE_STRING16 = 0x06;
-    public static final byte BASE_STRING32 = 0x07;
-    public static final byte BASE_MAP16 = 0x08;
-    public static final byte BASE_MAP32 = 0x09;
-    public static final byte BASE_ARRAY16 = 0x0A;
-    public static final byte BASE_ARRAY32 = 0x0B;
-    public static final byte BASE_BIN16 = 0x0C;
-    public static final byte BASE_BIN32 = 0x0D;
-    public static final byte BASE_OBJECT = 0x0E;
+    public static final byte BASE_INT16 = 0x00;
+    public static final byte BASE_INT32 = 0x01;
+    public static final byte BASE_INT64 = 0x02;
+    public static final byte BASE_FLOAT32 = 0x03;
+    public static final byte BASE_FLOAT64 = 0x04;
+    public static final byte BASE_STRING16 = 0x05;
+    public static final byte BASE_STRING32 = 0x06;
+    public static final byte BASE_MAP16 = 0x07;
+    public static final byte BASE_MAP32 = 0x08;
+    public static final byte BASE_ARRAY16 = 0x09;
+    public static final byte BASE_ARRAY32 = 0x0A;
+    public static final byte BASE_BIN16 = 0x0B;
+    public static final byte BASE_BIN32 = 0x0C;
+    public static final byte BASE_OBJECT = 0x0D;
+    public static final byte BASE_CLASS_INFO = 0x0E;
+    public static final byte BASE_CLASS_SIGNATURE = 0x0F;
 
     public static boolean isSmallPositiveInteger(byte value) {
         return (value & SMALL_INT_POSITIVE_MASK) == 0;
@@ -94,7 +95,7 @@ public class DataTypes {
     }
 
     public static boolean isClass(byte value) {
-        return value == (BASE | BASE_CLASS);
+        return value == (BASE | BASE_CLASS_INFO) || value == (BASE | BASE_CLASS_SIGNATURE);
     }
 
     public static boolean isBoolean(byte value) {

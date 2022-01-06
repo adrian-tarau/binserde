@@ -19,11 +19,14 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.SerializerFactory;
 import com.github.binserde.metadata.ClassInfo;
 import com.github.binserde.metadata.DataTypes;
+import com.github.binserde.metadata.Registry;
 import com.github.binserde.utils.ArgumentUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static com.github.binserde.io.IOUtils.BUFFER_SIZE;
 import static com.github.binserde.io.IOUtils.RESERVED_HEADER;
@@ -33,6 +36,11 @@ public abstract class AbstractEncoder implements Encoder {
 
     private final byte[] buffer = new byte[BUFFER_SIZE];
     private int position = RESERVED_HEADER;
+    private Registry registry;
+
+    public AbstractEncoder() {
+        registry = SerializerFactory.getInstance().getRegistry();
+    }
 
     @Override
     public final void writeBoolean(boolean value) throws IOException {
@@ -106,21 +114,45 @@ public abstract class AbstractEncoder implements Encoder {
     public final void writeString(String value) throws IOException {
         if (value == null) {
             writeRawByte(NULL);
-        } else if (value.length() <= LARGEST_SMALL_LENGTH) {
-            writeRawByte((byte) (STRING | value.length()));
-            writeRawString(value);
-        } else if (value.length() <= Short.MAX_VALUE) {
-            writeRawByte((byte) (BASE | BASE_STRING16));
-            writeRawShort((short) value.length());
-            writeRawString(value);
+        } else {
+            byte[] data = value.getBytes(StandardCharsets.UTF_8);
+            if (data.length <= LARGEST_SMALL_LENGTH) {
+                writeRawByte((byte) (STRING | data.length));
+                writeRawBytes(data);
+            } else {
+                writeRawByte((byte) (BASE | BASE_STRING16));
+                writeRawShort((short) value.length());
+                writeRawBytes(data);
+            }
         }
     }
 
     @Override
     public void writeClass(ClassInfo clazz) throws IOException {
         ArgumentUtils.requireNonNull(clazz);
-        writeRawByte((byte) (BASE | BASE_CLASS));
-        clazz.store(this);
+        boolean storeInfo = true;
+        if (registry != null) {
+            String signature = registry.store(clazz);
+            if (signature != null) {
+                writeRawByte((byte) (BASE | BASE_CLASS_SIGNATURE));
+                writeString(signature);
+            }
+            storeInfo = signature == null;
+        }
+        if (storeInfo) {
+            writeRawByte((byte) (BASE | BASE_CLASS_INFO));
+            clazz.store(this);
+        }
+    }
+
+    @Override
+    public void writeNull() throws IOException {
+        writeByte(NULL);
+    }
+
+    @Override
+    public void writeTag(byte tag) throws IOException {
+        writeRawByte(tag);
     }
 
     abstract void write(byte[] buffer, int offset, int length) throws IOException;
@@ -172,11 +204,10 @@ public abstract class AbstractEncoder implements Encoder {
         buffer[position++] = (byte) (value >>> 0);
     }
 
-    private void writeRawString(String value) throws IOException {
-        int length = value.length();
-        require(length * 2);
-        for (int index = 0; index < length; index++) {
-            writeRawShort((short) value.charAt(index));
+    private void writeRawBytes(byte[] data) throws IOException {
+        require(data.length);
+        for (byte _byte : data) {
+            buffer[position++] = _byte;
         }
     }
 }

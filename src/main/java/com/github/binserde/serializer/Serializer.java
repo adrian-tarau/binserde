@@ -21,9 +21,11 @@ package com.github.binserde.serializer;
 
 import com.github.binserde.io.Encoder;
 
+import java.io.IOException;
+
 public interface Serializer<T> {
 
     Class<T> getType();
 
-    void serialize(T data, Encoder encoder);
+    void serialize(T data, Encoder encoder) throws IOException;
 }

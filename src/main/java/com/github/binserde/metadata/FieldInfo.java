@@ -29,6 +29,12 @@ import java.lang.reflect.Field;
 
 import static com.github.binserde.metadata.DataType.OBJECT;
 
+/**
+ * Holds information about a field.
+ * <p>
+ * Each class is made out of fields and each field has a unique name, a data type and a class identifier (when the value
+ * is not a "simple" type.
+ */
 public class FieldInfo {
 
     public static final byte NO_VERSION = -1;
@@ -58,32 +64,70 @@ public class FieldInfo {
 
     private FieldInfo(String name, DataType dataType, boolean primitive, short classIdentifier) {
         ArgumentUtils.requireNonNull(name);
+        ArgumentUtils.requireNonNull(dataType);
         this.name = name;
         this.dataType = dataType;
         this.primitive = primitive;
         this.classIdentifier = classIdentifier;
     }
 
+    /**
+     * Returns the field name.
+     *
+     * @return a non-empty String
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the data type.
+     *
+     * @return a non-null Enum
+     */
     public DataType getDataType() {
         return dataType;
     }
 
+    /**
+     * Returns whether the data type represents a primitive.
+     * <p>
+     * It applies only to build in Java data types (byte/short/int/long, etc).
+     *
+     * @return {@code true} if a primitive, {@code false} otherwise
+     */
     public boolean isPrimitive() {
         return primitive;
     }
 
+    /**
+     * Returns the class identifier.
+     * <p>
+     * It applies only to fields with data type {@link DataType#OBJECT}
+     *
+     * @return the class identifier, 0 if it does not apply
+     */
     public short getClassIdentifier() {
         return classIdentifier;
     }
 
+    /**
+     * Return a cached reflection field.
+     *
+     * @return a non-null instance
+     */
     public Field getField() {
         return field;
     }
 
+    /**
+     * Stores field information in the stream.
+     * <p>
+     * The method is called when class information is stored in the stream.
+     *
+     * @param encoder the encoder
+     * @throws IOException if an I/O error occurs
+     */
     void store(Encoder encoder) throws IOException {
         encoder.writeString(name);
         encoder.writeByte((byte) dataType.ordinal());
@@ -92,13 +136,29 @@ public class FieldInfo {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FieldInfo fieldInfo = (FieldInfo) o;
+
+        if (primitive != fieldInfo.primitive) return false;
+        if (classIdentifier != fieldInfo.classIdentifier) return false;
+        if (!name.equals(fieldInfo.name)) return false;
+        return dataType == fieldInfo.dataType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + dataType.hashCode();
+        result = 31 * result + (primitive ? 1 : 0);
+        result = 31 * result + (int) classIdentifier;
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return "FieldInfo{" +
-                "name='" + name + '\'' +
-                ", dataType=" + dataType +
-                ", primitive=" + primitive +
-                ", classIdentifier=" + classIdentifier +
-                ", field=" + field +
-                '}';
+        return "FieldInfo{" + "name='" + name + '\'' + ", dataType=" + dataType + ", primitive=" + primitive + ", classIdentifier=" + classIdentifier + ", field=" + field + '}';
     }
 }

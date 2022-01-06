@@ -17,15 +17,15 @@
  * under the License.
  */
 
-package com.github.binserde.deserializer;
+package com.github.binserde.metadata;
 
-import com.github.binserde.io.Decoder;
+public class MetadataNotAvailableException extends MetadataException {
 
-import java.io.IOException;
+    public MetadataNotAvailableException(String message) {
+        super(message);
+    }
 
-public interface Deserializer<T> {
-
-    Class<T> getType();
-
-    T deserialize(Decoder decoder) throws IOException;
+    public MetadataNotAvailableException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

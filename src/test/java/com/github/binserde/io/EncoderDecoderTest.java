@@ -239,7 +239,7 @@ class EncoderDecoderTest {
         encoder.writeString(generateString(200));
         encoder.close();
         createDecoder();
-        assertEquals(449, outputStream.size());
+        assertEquals(231, outputStream.size());
         assertEquals(null, decoder.readString());
         assertEquals("", decoder.readString());
         assertEquals(generateString(3), decoder.readString());
@@ -254,7 +254,7 @@ class EncoderDecoderTest {
         encoder.writeClass(ClassInfo.create(Order.class));
         encoder.close();
         createDecoder();
-        assertEquals(154, outputStream.size());
+        assertEquals(99, outputStream.size());
         ClassInfo classInfo = decoder.readClass();
         assertEquals(100, classInfo.getIdentifier());
         assertEquals(3, classInfo.getFields().size());

@@ -31,6 +31,7 @@ import static com.github.binserde.metadata.DataTypes.*;
 public abstract class AbstractDecoder implements Decoder {
 
     private final byte[] buffer = new byte[BUFFER_SIZE];
+    private final static byte[] EMPTY_BYTES = new byte[0];
     private int position = RESERVED_HEADER;
     private int length = 0;
 
@@ -224,12 +225,18 @@ public abstract class AbstractDecoder implements Decoder {
         return (b0 << 56) + (b1 << 48) + (b2 << 40) + (b3 << 32) + (b4 << 24) + (b5 << 16) + (b6 << 8) + b7;
     }
 
-    private String readRawString(int length) throws IOException {
-        require(length * 2);
-        StringBuilder builder = new StringBuilder(length);
-        for (int index = 0; index < length; index++) {
-            builder.append((char) readRawShort());
+    private byte[] readRawBytes(int length) throws IOException {
+        if (length == 0) return EMPTY_BYTES;
+        require(length);
+        byte[] bytes = new byte[length];
+        for (int index = 0; index < bytes.length; index++) {
+            bytes[index] = buffer[position++];
         }
-        return builder.toString();
+        return bytes;
+    }
+
+    private String readRawString(int length) throws IOException {
+        byte[] bytes = readRawBytes(length);
+        return new String(bytes);
     }
 }

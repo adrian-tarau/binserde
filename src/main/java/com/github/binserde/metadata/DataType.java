@@ -19,40 +19,66 @@
 
 package com.github.binserde.metadata;
 
+/**
+ * An enum used to identify data types supported by the library.
+ */
 public enum DataType {
 
-    BOOLEAN,
-    CHARACTER,
-    BYTE,
-    SHORT,
-    INTEGER,
-    LONG,
-    FLOAT,
-    DOUBLE,
-    STRING,
-    BIG_INTEGER,
-    BIG_DECIMAL,
+    OBJECT(0, (Category.OTHER)),
 
-    LIST,
-    SET,
-    SORTED_SET,
-    QUEUE,
-    DEQUE,
-    MAP,
-    SORTED_MAP,
+    BOOLEAN(1, Category.OTHER),
+    CHARACTER(2, Category.OTHER),
+    BYTE(3, Category.NUMBER),
+    SHORT(4, Category.NUMBER),
+    INTEGER(5, Category.NUMBER),
+    LONG(6, Category.NUMBER),
+    FLOAT(7, Category.NUMBER),
+    DOUBLE(8, Category.NUMBER),
+    STRING(9, Category.OTHER),
+    BIG_INTEGER(10, Category.NUMBER),
+    BIG_DECIMAL(11, Category.NUMBER),
 
-    TIME_DURATION,
-    TIME_INSTANT,
-    TIME_LOCAL_DATE,
-    TIME_LOCAL_TIME,
-    TIME_LOCAL_DATETIME,
-    TIME_OFFSET_DATETIME,
-    TIME_ZONED_DATETIME,
-    TIME_PERIOD,
-    TIME_ZONE_ID,
-    TIME_ZONE_OFFSET,
+    LIST(20, Category.COLLECTION),
+    SET(21, Category.COLLECTION),
+    SORTED_SET(22, Category.COLLECTION),
+    QUEUE(23, Category.COLLECTION),
+    DEQUE(24, Category.COLLECTION),
+    MAP(25, Category.COLLECTION),
+    SORTED_MAP(26, Category.COLLECTION),
 
-    OBJECT;
+    TIME_DURATION(30, Category.TIME),
+    TIME_INSTANT(31, Category.TIME),
+    TIME_LOCAL_DATE(32, Category.TIME),
+    TIME_LOCAL_TIME(33, Category.TIME),
+    TIME_LOCAL_DATETIME(34, Category.TIME),
+    TIME_OFFSET_DATETIME(35, Category.TIME),
+    TIME_ZONED_DATETIME(36, Category.TIME),
+    TIME_PERIOD(37, Category.TIME),
+    TIME_ZONE_ID(38, Category.TIME),
+    TIME_ZONE_OFFSET(39, Category.TIME);
+
+    public enum Category {
+        NUMBER,
+        COLLECTION,
+        TIME,
+        OTHER
+    }
+
+    private Category category;
+    private byte id;
+
+    DataType(int id, Category category) {
+        this.id = (byte) id;
+        this.category = category;
+    }
+
+    public byte getId() {
+        return id;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
 
     public static DataType fromId(byte value) {
         return DataType.values()[value];

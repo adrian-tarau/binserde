@@ -20,7 +20,12 @@
 package com.github.binserde;
 
 import com.github.binserde.annotation.Tag;
+import com.github.binserde.deserializer.Deserializer;
+import com.github.binserde.deserializer.ReflectionDeserializer;
 import com.github.binserde.metadata.MetadataException;
+import com.github.binserde.metadata.Registry;
+import com.github.binserde.serializer.ReflectionSerializer;
+import com.github.binserde.serializer.Serializer;
 import com.github.binserde.utils.ArgumentUtils;
 
 import java.util.Map;
@@ -40,6 +45,8 @@ public class SerializerFactory {
 
     public static SerializerFactory instance = new SerializerFactory();
 
+    private volatile Registry registry;
+
     /**
      * Returns the singleton instance.
      *
@@ -50,6 +57,14 @@ public class SerializerFactory {
     }
 
     private SerializerFactory() {
+    }
+
+    /**
+     * Returns the registry associated with the factory.
+     * @return the registry
+     */
+    public Registry getRegistry() {
+        return registry;
     }
 
     /**
@@ -124,6 +139,28 @@ public class SerializerFactory {
         Class<?> clazz = classesById.get((short) identifier);
         if (clazz == null) throw new MetadataException("Identifier '" + identifier + "' is not registered");
         return clazz;
+    }
+
+    /**
+     * Creates a serializer for a given type.
+     *
+     * @param type the class to serialize
+     * @param <T>  the data type
+     * @return a non-null instance
+     */
+    public <T> Serializer<T> createSerializer(Class<T> type) {
+        return new ReflectionSerializer<>(type);
+    }
+
+    /**
+     * Creates a deserializer for a given type.
+     *
+     * @param type the class to serialize
+     * @param <T>  the data type
+     * @return a non-null instance
+     */
+    public <T> Deserializer<T> createDeserializer(Class<T> type) {
+        return new ReflectionDeserializer<>(type);
     }
 
     /**

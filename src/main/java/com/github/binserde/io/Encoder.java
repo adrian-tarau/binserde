@@ -25,6 +25,10 @@ import java.io.IOException;
 
 public interface Encoder extends AutoCloseable {
 
+    void writeNull() throws IOException;
+
+    void writeTag(byte tag) throws IOException;
+
     void writeBoolean(boolean value) throws IOException;
 
     void writeByte(byte value) throws IOException;

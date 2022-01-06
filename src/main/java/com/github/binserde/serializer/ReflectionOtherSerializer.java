@@ -17,20 +17,33 @@
  * under the License.
  */
 
-package com.github.binserde.deserializer;
+package com.github.binserde.serializer;
 
-import com.github.binserde.io.Decoder;
+import com.github.binserde.io.Encoder;
+import com.github.binserde.metadata.FieldInfo;
 
 import java.io.IOException;
 
-public class ReflectionDeserializer<T> extends AbstractDeserializer<T> {
+public class ReflectionOtherSerializer extends ReflectionFieldSerializer {
 
-    public ReflectionDeserializer(Class<T> type) {
-        super(type);
+    public ReflectionOtherSerializer(ReflectionSerializer<?> parent) {
+        super(parent);
     }
 
     @Override
-    public T deserialize(Decoder decoder) throws IOException  {
-        return null;
+    void serialize(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
+        switch (fieldInfo.getDataType()) {
+            case BOOLEAN:
+                encoder.writeBoolean((Boolean) value);
+                break;
+            case CHARACTER:
+                encoder.writeCharacter((Character) value);
+                break;
+            case STRING:
+                encoder.writeString((String) value);
+                break;
+            default:
+                throw new SerializerException("Unhandled enum " + fieldInfo.getDataType());
+        }
     }
 }
