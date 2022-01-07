@@ -19,9 +19,9 @@
 
 package com.github.binserde.metadata;
 
+import com.github.binserde.dto.Customer;
 import com.github.binserde.dto.DtoUtils;
 import com.github.binserde.dto.Order;
-import com.github.binserde.dto.Person;
 import com.github.binserde.io.Decoder;
 import com.github.binserde.io.Encoder;
 import com.github.binserde.io.OutputStreamEncoder;
@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ClassInfoTest {
 
@@ -46,14 +47,15 @@ class ClassInfoTest {
     }
 
     @Test
-    void fromPerson() {
-        ClassInfo classInfo = ClassInfo.create(Person.class);
-        assertEquals("Person", classInfo.getName());
-        assertEquals(Person.class, classInfo.getClazz());
-        assertEquals(3, classInfo.getFields().size());
+    void fromCustomer() {
+        ClassInfo classInfo = ClassInfo.create(Customer.class);
+        assertEquals("Customer", classInfo.getName());
+        assertEquals(Customer.class, classInfo.getClazz());
+        assertEquals(5, classInfo.getFields().size());
         assertEquals("firstName", classInfo.getField("firstname").getName());
         assertEquals("firstName", classInfo.getField(0).getName());
         assertEquals(100, classInfo.getIdentifier());
+        assertNotNull(classInfo.getSignature());
     }
 
     @Test
@@ -61,14 +63,14 @@ class ClassInfoTest {
         ClassInfo classInfo = ClassInfo.create(Order.class);
         assertEquals("Order", classInfo.getName());
         assertEquals(Order.class, classInfo.getClazz());
-        assertEquals(4, classInfo.getFields().size());
+        assertEquals(3, classInfo.getFields().size());
         assertEquals(200, classInfo.getIdentifier());
     }
 
     @Test
     void validaToString() throws Exception {
-        ClassInfo classInfo = ClassInfo.create(Person.class);
-        assertEquals("ClassInfo{clazz=com.github.binserde.dto.Person, identifier=100, fields=[FieldInfo{name='firstName', dataType=STRING, primitive=false, classIdentifier=-1, field=private java.lang.String com.github.binserde.dto.Person.firstName}, FieldInfo{name='lastName', dataType=STRING, primitive=false, classIdentifier=-1, field=private java.lang.String com.github.binserde.dto.Person.lastName}, FieldInfo{name='age', dataType=INTEGER, primitive=true, classIdentifier=-1, field=private int com.github.binserde.dto.Person.age}]}", classInfo.toString());
+        ClassInfo classInfo = ClassInfo.create(Customer.class);
+        assertNotNull(classInfo.toString());
     }
 
 }

@@ -19,9 +19,9 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.dto.Customer;
 import com.github.binserde.dto.DtoUtils;
 import com.github.binserde.dto.Order;
-import com.github.binserde.dto.Person;
 import com.github.binserde.metadata.ClassInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -250,17 +250,17 @@ class EncoderDecoderTest {
     @Test
     void classes() throws IOException {
         DtoUtils.init();
-        encoder.writeClass(ClassInfo.create(Person.class));
+        encoder.writeClass(ClassInfo.create(Customer.class));
         encoder.writeClass(ClassInfo.create(Order.class));
         encoder.close();
         createDecoder();
-        assertEquals(99, outputStream.size());
+        assertEquals(116, outputStream.size());
         ClassInfo classInfo = decoder.readClass();
         assertEquals(100, classInfo.getIdentifier());
-        assertEquals(3, classInfo.getFields().size());
+        assertEquals(5, classInfo.getFields().size());
         classInfo = decoder.readClass();
         assertEquals(200, classInfo.getIdentifier());
-        assertEquals(4, classInfo.getFields().size());
+        assertEquals(3, classInfo.getFields().size());
     }
 
     private void createDecoder() {

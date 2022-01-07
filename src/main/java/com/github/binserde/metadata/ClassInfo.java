@@ -224,13 +224,13 @@ public class ClassInfo {
                 digest.update((byte) ((sortedField.getClassIdentifier() >> 8) & 0xFF));
             }
             StringBuilder builder = new StringBuilder();
-            builder.append(Integer.toString((identifier & 0xFF), 16).toLowerCase());
             builder.append(Integer.toString(((identifier >> 8) & 0xFF), 16).toLowerCase());
-            builder.append(":");
+            builder.append(Integer.toString((identifier & 0xFF), 16).toLowerCase());
+            builder.append("-");
             byte[] bytes = digest.digest();
-            for (byte _byte : bytes) {
-                builder.append(Integer.toString(_byte, 16).toLowerCase());
-            }
+            long hash = ((long) bytes[0] << 56) + ((long) bytes[1] << 48) + ((long) bytes[2] << 40) + ((long) bytes[3] << 32)
+                    + (bytes[4] << 24) + (bytes[5] << 16) + (bytes[6] << 8) + bytes[7];
+            builder.append(Long.toString(hash, 26));
             return builder.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new MetadataException("Cannot calculate class identifier", e);
@@ -254,7 +254,6 @@ public class ClassInfo {
 
     @Override
     public String toString() {
-        return "ClassInfo{" + "clazz=" + clazz.getName() + ", identifier=" + identifier
-                + ", fields=" + fieldsByIndex + '}';
+        return "ClassInfo{" + "clazz=" + clazz.getName() + ", identifier=" + identifier + ", fields=" + fieldsByIndex + '}';
     }
 }

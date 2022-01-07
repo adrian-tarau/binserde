@@ -17,21 +17,22 @@
  * under the License.
  */
 
-package com.github.binserde.dto;
+package com.github.binserde.metadata;
 
-import com.github.binserde.SerializerFactory;
+public class NullRegistry extends AbstractRegistry {
 
-public class DtoUtils {
-
-    private static int CLASS_ID;
-
-    public static void init() {
-        CLASS_ID = 100;
-        SerializerFactory serializerFactory = SerializerFactory.getInstance();
-        serializerFactory.register(Customer.class, CLASS_ID++);
-        serializerFactory.register(Address.class, CLASS_ID++);
-        serializerFactory.register(Product.class, CLASS_ID++);
-        serializerFactory.register(Order.class);
+    @Override
+    protected String doStore(ClassInfo classInfo) throws Exception {
+        return null;
     }
 
+    @Override
+    protected ClassInfo doLoad(String signature) throws Exception {
+        throw new MetadataException("Should not get here");
+    }
+
+    @Override
+    protected boolean doIsAvailable() throws Exception {
+        return false;
+    }
 }

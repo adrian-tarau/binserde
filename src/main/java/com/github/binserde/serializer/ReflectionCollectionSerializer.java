@@ -24,6 +24,9 @@ import com.github.binserde.metadata.FieldInfo;
 
 import java.io.IOException;
 
+import static com.github.binserde.metadata.DataTypes.BASE;
+import static com.github.binserde.metadata.DataTypes.BASE_OBJECT;
+
 public class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
 
     public ReflectionCollectionSerializer(ReflectionSerializer<?> parent) {
@@ -32,6 +35,8 @@ public class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
 
     @Override
     void serialize(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
+        encoder.writeTag((byte) (BASE | BASE_OBJECT));
+        encoder.writeTag(fieldInfo.getDataType().getId());
         switch (fieldInfo.getDataType()) {
             case LIST:
                 encoder.writeBoolean((Boolean) value);
@@ -39,7 +44,19 @@ public class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
             case SET:
                 encoder.writeCharacter((Character) value);
                 break;
-            case STRING:
+            case QUEUE:
+                encoder.writeCharacter((Character) value);
+                break;
+            case DEQUE:
+                encoder.writeCharacter((Character) value);
+                break;
+            case SORTED_SET:
+                encoder.writeCharacter((Character) value);
+                break;
+            case MAP:
+                encoder.writeString((String) value);
+                break;
+            case SORTED_MAP:
                 encoder.writeString((String) value);
                 break;
             default:

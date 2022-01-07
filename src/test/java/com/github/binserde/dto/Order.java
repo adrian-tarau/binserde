@@ -21,44 +21,80 @@ package com.github.binserde.dto;
 
 import com.github.binserde.annotation.Tag;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 @Tag(200)
 public class Order {
 
-    private Person person;
-    private Address address;
+    private Customer customer;
+    private Address shipping;
 
-    private float amount;
-    private float count;
+    private List<Entry> entries = new ArrayList<>();
 
-    public Person getPerson() {
-        return person;
+    public Customer getPerson() {
+        return customer;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public Order setPerson(Customer customer) {
+        this.customer = customer;
+        return this;
     }
 
-    public Address getAddress() {
-        return address;
+    public Address getShipping() {
+        return shipping;
     }
 
-    public void setAddress(Address address) {
-        this.address = address;
+    public Order setShipping(Address shipping) {
+        this.shipping = shipping;
+        return this;
     }
 
-    public float getAmount() {
-        return amount;
+    public Collection<Entry> getEntries() {
+        return entries;
     }
 
-    public void setAmount(float amount) {
-        this.amount = amount;
+    public Order setEntries(List<Entry> entries) {
+        this.entries = entries;
+        return this;
     }
 
-    public float getCount() {
-        return count;
+    public static class Entry {
+
+        private Product product;
+        private double amount;
+        private float count;
+
+        public Product getProduct() {
+            return product;
+        }
+
+        public Entry setProduct(Product product) {
+            this.product = product;
+            return this;
+        }
+
+        public double getAmount() {
+            return amount;
+        }
+
+        public Entry setAmount(double amount) {
+            this.amount = amount;
+            return this;
+        }
+
+        public float getCount() {
+            return count;
+        }
+
+        public Entry setCount(float count) {
+            this.count = count;
+            return this;
+        }
     }
 
-    public void setCount(float count) {
-        this.count = count;
+    public static Order create() {
+        return new Order();
     }
 }

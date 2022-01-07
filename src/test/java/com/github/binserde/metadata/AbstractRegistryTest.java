@@ -19,8 +19,8 @@
 
 package com.github.binserde.metadata;
 
+import com.github.binserde.dto.Customer;
 import com.github.binserde.dto.DtoUtils;
-import com.github.binserde.dto.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +36,7 @@ class AbstractRegistryTest {
     private TestRegistry registry;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         DtoUtils.init();
         registry = new TestRegistry();
         registry.setRefreshInterval(Duration.ofMillis(100));
@@ -44,7 +44,7 @@ class AbstractRegistryTest {
     }
 
     @Test
-    public void isAvailableWhenRegistryIsAvailable() {
+    void isAvailableWhenRegistryIsAvailable() {
         assertTrue(registry.isAvailable());
         registry.available = false;
         assertTrue(registry.isAvailable());
@@ -52,62 +52,62 @@ class AbstractRegistryTest {
     }
 
     @Test
-    public void isAvailableWhenRegistryIsNotAvailable() {
+    void isAvailableWhenRegistryIsNotAvailable() {
         registry.available = false;
         assertFalse(registry.isAvailable());
         assertEquals(1, registry.getUnavailableCount());
     }
 
     @Test
-    public void isAvailableWithFailure() {
+    void isAvailableWithFailure() {
         registry.exceptionForAvailable = new IOException("Failure");
         assertFalse(registry.isAvailable());
         assertEquals(1, registry.getUnavailableCount());
     }
 
     @Test
-    public void storeWithValidRegistry() {
-        assertNotNull(registry.store(ClassInfo.create(Person.class)));
+    void storeWithValidRegistry() {
+        assertNotNull(registry.store(ClassInfo.create(Customer.class)));
     }
 
     @Test
-    public void storeWithUnavailableRegistry() {
+    void storeWithUnavailableRegistry() {
         registry.available = false;
-        assertNull(registry.store(ClassInfo.create(Person.class)));
+        assertNull(registry.store(ClassInfo.create(Customer.class)));
         assertEquals(1, registry.getUnavailableCount());
     }
 
     @Test
-    public void storeWithUnavailableRegistryDueToNetwork() {
+    void storeWithUnavailableRegistryDueToNetwork() {
         registry.exception = new IOException("Failure");
-        assertNull(registry.store(ClassInfo.create(Person.class)));
+        assertNull(registry.store(ClassInfo.create(Customer.class)));
         assertEquals(1, registry.getUnavailableCount());
     }
 
     @Test
-    public void loadWithoutAnEntry() {
+    void loadWithoutAnEntry() {
         assertThrows(MetadataNotAvailableException.class, () -> {
             registry.load("missing");
         });
     }
 
     @Test
-    public void loadWithEntry() {
-        ClassInfo classInfo = ClassInfo.create(Person.class);
+    void loadWithEntry() {
+        ClassInfo classInfo = ClassInfo.create(Customer.class);
         registry.cacheBySignature.put(classInfo.getSignature(), classInfo);
         assertEquals(classInfo, registry.load(classInfo.getSignature()));
     }
 
     @Test
-    public void loadWithoutExistingEntry() {
-        ClassInfo classInfo = ClassInfo.create(Person.class);
+    void loadWithoutExistingEntry() {
+        ClassInfo classInfo = ClassInfo.create(Customer.class);
         assertThrows(MetadataNotAvailableException.class, () -> {
             registry.load(classInfo.getSignature());
         });
     }
 
     @Test
-    public void loadWithException() {
+    void loadWithException() {
         registry.exception = new IOException("Failure");
         assertThrows(MetadataNotAvailableException.class, () -> {
             registry.load("signature");

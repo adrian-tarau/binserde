@@ -19,9 +19,9 @@
 
 package com.github.binserde.metadata;
 
+import com.github.binserde.dto.Customer;
 import com.github.binserde.dto.DtoUtils;
 import com.github.binserde.dto.Order;
-import com.github.binserde.dto.Person;
 import com.github.binserde.io.Decoder;
 import com.github.binserde.io.Encoder;
 import com.github.binserde.io.InputStreamDecoder;
@@ -50,7 +50,7 @@ class FieldInfoTest {
 
     @Test
     void fromFieldWithPrimitive() throws Exception {
-        Field field = Person.class.getDeclaredField("age");
+        Field field = Customer.class.getDeclaredField("age");
         FieldInfo fieldInfo = FieldInfo.create(field);
         assertEquals("age", fieldInfo.getName());
         assertEquals(DataType.INTEGER, fieldInfo.getDataType());
@@ -60,7 +60,7 @@ class FieldInfoTest {
 
     @Test
     void fromFieldWithString() throws Exception {
-        Field field = Person.class.getDeclaredField("firstName");
+        Field field = Customer.class.getDeclaredField("firstName");
         FieldInfo fieldInfo = FieldInfo.create(field);
         assertEquals("firstName", fieldInfo.getName());
         assertEquals(DataType.STRING, fieldInfo.getDataType());
@@ -70,17 +70,17 @@ class FieldInfoTest {
 
     @Test
     void fromFieldWithObject() throws Exception {
-        Field field = Order.class.getDeclaredField("person");
+        Field field = Order.class.getDeclaredField("customer");
         FieldInfo fieldInfo = FieldInfo.create(field);
-        assertEquals("person", fieldInfo.getName());
+        assertEquals("customer", fieldInfo.getName());
         assertEquals(DataType.OBJECT, fieldInfo.getDataType());
         assertFalse(fieldInfo.isPrimitive());
-        assertEquals("person", fieldInfo.getField().getName());
+        assertEquals("customer", fieldInfo.getField().getName());
     }
 
     @Test
     void fromStream() throws Exception {
-        Field field = Person.class.getDeclaredField("firstName");
+        Field field = Customer.class.getDeclaredField("firstName");
         FieldInfo fieldInfo = FieldInfo.create(field);
         fieldInfo.store(encoder);
         encoder.close();
@@ -93,9 +93,9 @@ class FieldInfoTest {
 
     @Test
     void validaToString() throws Exception {
-        Field field = Person.class.getDeclaredField("firstName");
+        Field field = Customer.class.getDeclaredField("firstName");
         FieldInfo fieldInfo = FieldInfo.create(field);
-        assertEquals("FieldInfo{name='firstName', dataType=STRING, primitive=false, classIdentifier=-1, field=private java.lang.String com.github.binserde.dto.Person.firstName}", fieldInfo.toString());
+        assertTrue(fieldInfo.toString().contains("FieldInfo"));
     }
 
     private void createDecoder() {

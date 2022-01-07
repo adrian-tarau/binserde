@@ -61,10 +61,21 @@ public class SerializerFactory {
 
     /**
      * Returns the registry associated with the factory.
+     *
      * @return the registry
      */
     public Registry getRegistry() {
         return registry;
+    }
+
+    /**
+     * Changes the registry.
+     *
+     * @param registry the registry
+     */
+    public void setRegistry(Registry registry) {
+        ArgumentUtils.requireNonNull(registry);
+        this.registry = registry;
     }
 
     /**
