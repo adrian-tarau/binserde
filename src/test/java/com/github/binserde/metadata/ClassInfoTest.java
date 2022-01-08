@@ -19,6 +19,7 @@
 
 package com.github.binserde.metadata;
 
+import com.github.binserde.dto.Address;
 import com.github.binserde.dto.Customer;
 import com.github.binserde.dto.DtoUtils;
 import com.github.binserde.dto.Order;
@@ -56,6 +57,16 @@ class ClassInfoTest {
         assertEquals("firstName", classInfo.getField(0).getName());
         assertEquals(100, classInfo.getIdentifier());
         assertNotNull(classInfo.getSignature());
+    }
+
+    @Test
+    void fromAddress() {
+        ClassInfo classInfo = ClassInfo.create(Address.class);
+        assertEquals("Address", classInfo.getName());
+        assertEquals(Address.class, classInfo.getClazz());
+        assertEquals(6, classInfo.getFields().size());
+        assertEquals(DataType.ENUM, classInfo.getField("type").getDataType());
+        assertEquals(101, classInfo.getIdentifier());
     }
 
     @Test

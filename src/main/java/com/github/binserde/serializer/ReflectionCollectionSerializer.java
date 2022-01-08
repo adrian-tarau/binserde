@@ -23,9 +23,10 @@ import com.github.binserde.io.Encoder;
 import com.github.binserde.metadata.FieldInfo;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 
-import static com.github.binserde.metadata.DataTypes.BASE;
-import static com.github.binserde.metadata.DataTypes.BASE_OBJECT;
+import static com.github.binserde.metadata.DataTypes.*;
 
 public class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
 
@@ -39,28 +40,41 @@ public class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
         encoder.writeTag(fieldInfo.getDataType().getId());
         switch (fieldInfo.getDataType()) {
             case LIST:
-                encoder.writeBoolean((Boolean) value);
-                break;
             case SET:
-                encoder.writeCharacter((Character) value);
-                break;
             case QUEUE:
-                encoder.writeCharacter((Character) value);
-                break;
             case DEQUE:
-                encoder.writeCharacter((Character) value);
-                break;
             case SORTED_SET:
-                encoder.writeCharacter((Character) value);
+                serializeArray(fieldInfo, value, encoder);
                 break;
             case MAP:
-                encoder.writeString((String) value);
-                break;
             case SORTED_MAP:
-                encoder.writeString((String) value);
+                serializeMap(fieldInfo, value, encoder);
                 break;
             default:
-                throw new SerializerException("Unhandled enum " + fieldInfo.getDataType());
+                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
+        }
+    }
+
+    void serializeArray(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
+        Collection<Object> collection = (Collection<Object>) value;
+        int size = collection.size();
+        encoder.writeTag((byte) (BASE | BASE_ARRAY));
+        encoder.writeTag(fieldInfo.getDataType().getId());
+        encoder.writeInteger(size);
+        for (Object collectionValue : collection) {
+            parent.serializeTree(collectionValue);
+        }
+    }
+
+    void serializeMap(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
+        Map<Object, Object> map = (Map<Object, Object>) value;
+        int size = map.size();
+        encoder.writeTag((byte) (BASE | BASE_ARRAY));
+        encoder.writeTag(fieldInfo.getDataType().getId());
+        encoder.writeInteger(size);
+        for (Map.Entry<Object, Object> entry : map.entrySet()) {
+            parent.serializeTree(entry.getKey());
+            parent.serializeTree(entry.getValue());
         }
     }
 }

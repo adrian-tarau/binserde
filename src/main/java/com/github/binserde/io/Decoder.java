@@ -23,7 +23,7 @@ import com.github.binserde.metadata.ClassInfo;
 
 import java.io.IOException;
 
-public interface Decoder extends AutoCloseable{
+public interface Decoder extends AutoCloseable {
 
     byte peekTag() throws IOException;
 
@@ -42,6 +42,8 @@ public interface Decoder extends AutoCloseable{
     double readDouble() throws IOException;
 
     char readCharacter() throws IOException;
+
+    <E extends Enum<E>> E readEnum(Class<E> enumClass) throws IOException;
 
     String readString() throws IOException;
 

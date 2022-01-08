@@ -67,7 +67,7 @@ public class ReflectionTimeSerializer extends ReflectionFieldSerializer {
 
                 break;
             default:
-                throw new SerializerException("Unhandled enum " + fieldInfo.getDataType());
+                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
         }
     }
 }

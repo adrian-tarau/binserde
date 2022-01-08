@@ -26,7 +26,7 @@ import java.io.IOException;
 
 abstract class ReflectionFieldSerializer {
 
-    private final ReflectionSerializer<?> parent;
+    protected final ReflectionSerializer<?> parent;
 
     public ReflectionFieldSerializer(ReflectionSerializer<?> parent) {
         this.parent = parent;

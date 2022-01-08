@@ -36,17 +36,13 @@ public class DataTypes {
     public static final byte SMALL_INT_NEGATIVE_VALUE_MASK = 0x0F;
     public static final long LARGEST_SMALL_POSITIVE = 127;
     public static final long LARGEST_SMALL_NEGATIVE_VALUE = -15;
-    public static final long LARGEST_SMALL_LENGTH = 15;
 
     // 3 bit encoding for most common small data types
     // remaining 4 bytes are used to store the size, where applies
     public static final byte NULL = (byte) 0x80;
     public static final byte BOOLEAN = (byte) (0x80 + 0x10);
-    public static final byte MAP = (byte) (0x80 + 0x20);
-    public static final byte ARRAY = (byte) (0x80 + 0x30);
-    public static final byte STRING = (byte) (0x80 + 0x40);
-    public static final byte BASE = (byte) (0x80 + 0x50);
-    public static final byte OBJECT = (byte) (0x80 + 0x60);
+    public static final byte BASE = (byte) (0x80 + 0x60);
+    public static final byte OBJECT = (byte) (0x80 + 0x70);
 
     // 4 byte codes for larger class metadata,  primitives & collections
     public static final byte BASE_INT16 = 0x00;
@@ -54,14 +50,11 @@ public class DataTypes {
     public static final byte BASE_INT64 = 0x02;
     public static final byte BASE_FLOAT32 = 0x03;
     public static final byte BASE_FLOAT64 = 0x04;
-    public static final byte BASE_STRING16 = 0x05;
-    public static final byte BASE_STRING32 = 0x06;
-    public static final byte BASE_MAP16 = 0x07;
-    public static final byte BASE_MAP32 = 0x08;
-    public static final byte BASE_ARRAY16 = 0x09;
-    public static final byte BASE_ARRAY32 = 0x0A;
-    public static final byte BASE_BIN16 = 0x0B;
-    public static final byte BASE_BIN32 = 0x0C;
+    public static final byte BASE_ENUM = 0x05;
+    public static final byte BASE_STRING = 0x06;
+    public static final byte BASE_MAP = 0x06;
+    public static final byte BASE_ARRAY = 0x07;
+    public static final byte BASE_BIN = 0x09;
     public static final byte BASE_OBJECT = 0x0D;
     public static final byte BASE_CLASS_INFO = 0x0E;
     public static final byte BASE_CLASS_SIGNATURE = 0x0F;
@@ -143,6 +136,8 @@ public class DataTypes {
             } else {
                 throw new MetadataException("Unknown collection class " + clazz.getName());
             }
+        } else if (clazz.isEnum()) {
+            return DataType.ENUM;
         } else {
             return DataType.OBJECT;
         }

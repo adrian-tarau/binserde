@@ -45,6 +45,8 @@ public interface Encoder extends AutoCloseable {
 
     void writeCharacter(char value) throws IOException;
 
+    void writeEnum(Enum<?> value) throws IOException;
+
     void writeString(String value) throws IOException;
 
     void writeClass(ClassInfo clazz) throws IOException;

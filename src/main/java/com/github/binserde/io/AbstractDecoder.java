@@ -142,24 +142,27 @@ public abstract class AbstractDecoder implements Decoder {
     }
 
     @Override
+    public <E extends Enum<E>> E readEnum(Class<E> enumClass) throws IOException {
+        byte tag = readRawByte();
+        if (tag == NULL) {
+            return null;
+        } else {
+            int ordinal = readInteger();
+            return enumClass.getEnumConstants()[ordinal];
+        }
+    }
+
+    @Override
     public final String readString() throws IOException {
         byte tag = readRawByte();
-        if (tag == DataTypes.NULL) {
+        if (tag == NULL) {
             return null;
-        } else if ((tag & SMALL_INT_NEGATIVE_MASK) == STRING) {
-            int length = (tag & SMALL_INT_NEGATIVE_VALUE_MASK);
+        } else if (tag == (BASE | BASE_STRING)) {
+            int length = readInteger();
             return readRawString(length);
-        } else if ((tag & SMALL_INT_NEGATIVE_MASK) == BASE) {
-            int baseType = (tag & SMALL_INT_NEGATIVE_VALUE_MASK);
-            if (baseType == BASE_STRING16) {
-                int length = readRawShort();
-                return readRawString(length);
-            } else if (baseType == BASE_STRING32) {
-                int length = readRawShort();
-                return readRawString(length);
-            }
+        } else {
+            throw new DecoderException("Cannot decode string, tag " + DataTypes.tagToString(tag));
         }
-        throw new DecoderException("Cannot decode byte, tag " + DataTypes.tagToString(tag));
     }
 
     @Override

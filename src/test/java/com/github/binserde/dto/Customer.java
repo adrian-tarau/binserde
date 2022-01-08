@@ -66,8 +66,18 @@ public class Customer {
         return this;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public Customer setPhone(String phone) {
+        this.phone = phone;
+        return this;
+    }
+
     public static Customer create() {
         return new Customer().setFirstName("John").setLastName("Smith").setAge(30)
+                .setPhone("7283525734")
                 .setAddress(Address.create());
     }
 }

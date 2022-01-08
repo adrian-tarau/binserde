@@ -33,11 +33,11 @@ public class Order {
 
     private List<Entry> entries = new ArrayList<>();
 
-    public Customer getPerson() {
+    public Customer getCustomer() {
         return customer;
     }
 
-    public Order setPerson(Customer customer) {
+    public Order setCustomer(Customer customer) {
         this.customer = customer;
         return this;
     }
@@ -60,6 +60,7 @@ public class Order {
         return this;
     }
 
+    @Tag(201)
     public static class Entry {
 
         private Product product;
@@ -92,9 +93,20 @@ public class Order {
             this.count = count;
             return this;
         }
+
+        public static Entry create() {
+            return new Entry().setProduct(Product.create()).setAmount(10 + 20 * Math.random())
+                    .setCount((float) (1 + 5 * Math.random()));
+        }
     }
 
-    public static Order create() {
-        return new Order();
+    public static Order create(int entries) {
+        Order order = new Order().setCustomer(Customer.create()).setShipping(Address.create());
+        List<Entry> list = new ArrayList<>();
+        for (int index = 0; index < entries; index++) {
+            list.add(Entry.create());
+        }
+        order.setEntries(list);
+        return order;
     }
 }

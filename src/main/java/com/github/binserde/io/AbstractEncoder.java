@@ -48,6 +48,16 @@ public abstract class AbstractEncoder implements Encoder {
     }
 
     @Override
+    public void writeEnum(Enum<?> value) throws IOException {
+        if (value == null) {
+            writeNull();
+        } else {
+            writeTag((byte) (BASE | BASE_ENUM));
+            writeInteger(value.ordinal());
+        }
+    }
+
+    @Override
     public final void writeByte(byte value) throws IOException {
         if (value >= 0) {
             writeRawByte(value);
@@ -116,14 +126,9 @@ public abstract class AbstractEncoder implements Encoder {
             writeRawByte(NULL);
         } else {
             byte[] data = value.getBytes(StandardCharsets.UTF_8);
-            if (data.length <= LARGEST_SMALL_LENGTH) {
-                writeRawByte((byte) (STRING | data.length));
-                writeRawBytes(data);
-            } else {
-                writeRawByte((byte) (BASE | BASE_STRING16));
-                writeRawShort((short) value.length());
-                writeRawBytes(data);
-            }
+            writeRawByte((byte) (BASE | BASE_STRING));
+            writeInteger(value.length());
+            writeRawBytes(data);
         }
     }
 
@@ -147,7 +152,7 @@ public abstract class AbstractEncoder implements Encoder {
 
     @Override
     public void writeNull() throws IOException {
-        writeByte(NULL);
+        writeRawByte(NULL);
     }
 
     @Override

@@ -28,6 +28,7 @@ public class Address {
     private String city;
     private String state;
     private String zip;
+    private Type type;
 
     public String getStreet() {
         return street;
@@ -74,9 +75,23 @@ public class Address {
         return this;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public Address setType(Type type) {
+        this.type = type;
+        return this;
+    }
+
     public static Address create() {
         return new Address().setCity("Atlantic City").setStreet("2301 Boardwalk")
-                .setState("NJ").setZip("08401");
+                .setState("NJ").setZip("08401").setType(Type.RESIDENTIAL);
+    }
+
+    public enum Type {
+        BUSINESS,
+        RESIDENTIAL
     }
 
 

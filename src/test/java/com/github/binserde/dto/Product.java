@@ -34,39 +34,51 @@ public class Product {
         return name;
     }
 
-    public void setName(String name) {
+    public Product setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getSerialNumber() {
         return serialNumber;
     }
 
-    public void setSerialNumber(String serialNumber) {
+    public Product setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+        return this;
     }
 
     public float getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public Product setPrice(float price) {
         this.price = price;
+        return this;
     }
 
     public ZonedDateTime getCreated() {
         return created;
     }
 
-    public void setCreated(ZonedDateTime created) {
+    public Product setCreated(ZonedDateTime created) {
         this.created = created;
+        return this;
     }
 
     public ZonedDateTime getUpdated() {
         return updated;
     }
 
-    public void setUpdated(ZonedDateTime updated) {
+    public Product setUpdated(ZonedDateTime updated) {
         this.updated = updated;
+        return this;
+    }
+
+    public static Product create() {
+        return new Product().setCreated(ZonedDateTime.now()).setUpdated(ZonedDateTime.now())
+                .setPrice((float) (20 + 10 * Math.random()))
+                .setName(String.format("Product %05d", (int) (1 + 100 * Math.random())))
+                .setSerialNumber(Long.toString(System.currentTimeMillis()));
     }
 }

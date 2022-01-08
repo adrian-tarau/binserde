@@ -42,8 +42,11 @@ public class ReflectionOtherSerializer extends ReflectionFieldSerializer {
             case STRING:
                 encoder.writeString((String) value);
                 break;
+            case ENUM:
+                encoder.writeEnum((Enum<?>) value);
+                break;
             default:
-                throw new SerializerException("Unhandled enum " + fieldInfo.getDataType());
+                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
         }
     }
 }

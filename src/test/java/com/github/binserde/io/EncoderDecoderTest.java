@@ -19,6 +19,7 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.dto.Address;
 import com.github.binserde.dto.Customer;
 import com.github.binserde.dto.DtoUtils;
 import com.github.binserde.dto.Order;
@@ -231,6 +232,19 @@ class EncoderDecoderTest {
     }
 
     @Test
+    void enums() throws IOException {
+        encoder.writeEnum(null);
+        encoder.writeEnum(Address.Type.BUSINESS);
+        encoder.writeEnum(Address.Type.RESIDENTIAL);
+        encoder.close();
+        createDecoder();
+        assertEquals(11, outputStream.size());
+        assertEquals(null, decoder.readEnum(Address.Type.class));
+        assertEquals(Address.Type.BUSINESS, decoder.readEnum(Address.Type.class));
+        assertEquals(Address.Type.RESIDENTIAL, decoder.readEnum(Address.Type.class));
+    }
+
+    @Test
     void strings() throws IOException {
         encoder.writeString(null);
         encoder.writeString("");
@@ -239,7 +253,7 @@ class EncoderDecoderTest {
         encoder.writeString(generateString(200));
         encoder.close();
         createDecoder();
-        assertEquals(231, outputStream.size());
+        assertEquals(235, outputStream.size());
         assertEquals(null, decoder.readString());
         assertEquals("", decoder.readString());
         assertEquals(generateString(3), decoder.readString());
@@ -254,7 +268,7 @@ class EncoderDecoderTest {
         encoder.writeClass(ClassInfo.create(Order.class));
         encoder.close();
         createDecoder();
-        assertEquals(116, outputStream.size());
+        assertEquals(126, outputStream.size());
         ClassInfo classInfo = decoder.readClass();
         assertEquals(100, classInfo.getIdentifier());
         assertEquals(5, classInfo.getFields().size());

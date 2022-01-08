@@ -59,7 +59,7 @@ class ReflectionSerializerTest {
         ReflectionSerializer<Address> serializer = new ReflectionSerializer<>(Address.class);
         serializer.serialize(Address.create(), encoder);
         createDecoder();
-        assertEquals(102, outputStream.size());
+        assertEquals(121, outputStream.size());
     }
 
     @Test
@@ -67,7 +67,7 @@ class ReflectionSerializerTest {
         ReflectionSerializer<Customer> serializer = new ReflectionSerializer<>(Customer.class);
         serializer.serialize(Customer.create(), encoder);
         createDecoder();
-        assertEquals(181, outputStream.size());
+        assertEquals(217, outputStream.size());
     }
 
     @Test
@@ -76,15 +76,15 @@ class ReflectionSerializerTest {
         ReflectionSerializer<Customer> serializer = new ReflectionSerializer<>(Customer.class);
         serializer.serialize(Customer.create(), encoder);
         createDecoder();
-        assertEquals(106, outputStream.size());
+        assertEquals(121, outputStream.size());
     }
 
     @Test
     void serializeOrder() throws IOException {
         ReflectionSerializer<Order> serializer = new ReflectionSerializer<>(Order.class);
-        serializer.serialize(Order.create(), encoder);
+        serializer.serialize(Order.create(5), encoder);
         createDecoder();
-        assertEquals(181, outputStream.size());
+        assertEquals(699, outputStream.size());
     }
 
     private void createDecoder() throws IOException {

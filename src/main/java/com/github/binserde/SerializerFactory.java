@@ -105,8 +105,7 @@ public class SerializerFactory {
         synchronized (classesById) {
             Class<?> existingClass = classesById.get(identifierShort);
             if (existingClass != null && existingClass != clazz) {
-                throw new IllegalArgumentException("Failed to register class " + clazz.getName() + " with identifier "
-                        + identifier + ", another class (" + existingClass.getName() + ") is already registered");
+                throw new IllegalArgumentException("Failed to register class " + clazz.getName() + " with identifier " + identifier + ", another class (" + existingClass.getName() + ") is already registered");
             } else {
                 classesById.put(identifierShort, clazz);
                 idsByClasses.put(clazz, identifierShort);

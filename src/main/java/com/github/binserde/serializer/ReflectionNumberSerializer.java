@@ -58,7 +58,7 @@ public class ReflectionNumberSerializer extends ReflectionFieldSerializer {
                 //encoder.writeString((String) value);
                 break;
             default:
-                throw new SerializerException("Unhandled enum " + fieldInfo.getDataType());
+                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
         }
     }
 }
