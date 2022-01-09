@@ -135,6 +135,17 @@ public class ClassInfo {
      * Returns a field by its name.
      *
      * @param name the name, case-insensitive
+     * @return the field if exists, {@code NULL} otherwise
+     */
+    public FieldInfo findField(String name) {
+        ArgumentUtils.requireNonNull(name);
+        return fieldsByName.get(name.toLowerCase());
+    }
+
+    /**
+     * Returns a field by its name.
+     *
+     * @param name the name, case-insensitive
      * @return the field
      * @throws MetadataException if the field does not exist
      */
@@ -149,11 +160,26 @@ public class ClassInfo {
      * Returns a field by its tag.
      *
      * @param tag the tag, case-insensitive
+     * @return the field if exists, {@code NULL} otherise
+     */
+    public FieldInfo findField(int tag) {
+        FieldInfo fieldInfo = fieldsByIndex.get(tag);
+        if (fieldInfo == null) throw new MetadataException("A field with tag '" + tag + "' does not exist");
+        return fieldInfo;
+    }
+
+
+    /**
+     * Returns a field by its tag.
+     *
+     * @param tag the tag, case-insensitive
      * @return the field
      * @throws MetadataException if the field does not exist
      */
     public FieldInfo getField(int tag) {
-        return fieldsByIndex.get(tag);
+        FieldInfo fieldInfo = fieldsByIndex.get(tag);
+        if (fieldInfo == null) throw new MetadataException("A field with tag '" + tag + "' does not exist");
+        return fieldInfo;
     }
 
     /**

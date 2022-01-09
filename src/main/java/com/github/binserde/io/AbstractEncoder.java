@@ -36,11 +36,7 @@ public abstract class AbstractEncoder implements Encoder {
 
     private final byte[] buffer = new byte[BUFFER_SIZE];
     private int position = RESERVED_HEADER;
-    private Registry registry;
-
-    public AbstractEncoder() {
-        registry = SerializerFactory.getInstance().getRegistry();
-    }
+    private final Registry registry = SerializerFactory.getInstance().getRegistry();
 
     @Override
     public final void writeBoolean(boolean value) throws IOException {

@@ -27,9 +27,9 @@ import java.io.IOException;
 import static com.github.binserde.metadata.DataTypes.BASE;
 import static com.github.binserde.metadata.DataTypes.BASE_OBJECT;
 
-public class ReflectionTimeSerializer extends ReflectionFieldSerializer {
+class ReflectionTimeSerializer extends ReflectionFieldSerializer {
 
-    public ReflectionTimeSerializer(ReflectionSerializer<?> parent) {
+    ReflectionTimeSerializer(ReflectionSerializer<?> parent) {
         super(parent);
     }
 

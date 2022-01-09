@@ -19,8 +19,10 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.SerializerFactory;
 import com.github.binserde.metadata.ClassInfo;
 import com.github.binserde.metadata.DataTypes;
+import com.github.binserde.metadata.Registry;
 
 import java.io.IOException;
 
@@ -30,6 +32,8 @@ import static com.github.binserde.metadata.DataTypes.*;
 
 public abstract class AbstractDecoder implements Decoder {
 
+    private final Registry registry = SerializerFactory.getInstance().getRegistry();
+
     private final byte[] buffer = new byte[BUFFER_SIZE];
     private final static byte[] EMPTY_BYTES = new byte[0];
     private int position = RESERVED_HEADER;
@@ -37,6 +41,7 @@ public abstract class AbstractDecoder implements Decoder {
 
     @Override
     public byte peekTag() throws IOException {
+        require(1);
         return buffer[position];
     }
 
@@ -148,7 +153,12 @@ public abstract class AbstractDecoder implements Decoder {
             return null;
         } else {
             int ordinal = readInteger();
-            return enumClass.getEnumConstants()[ordinal];
+            if (Enum.class.equals(enumClass)) {
+                // in case there is no type, local field does not exist, just return null since it is not used
+                return null;
+            } else {
+                return enumClass.getEnumConstants()[ordinal];
+            }
         }
     }
 
@@ -169,7 +179,12 @@ public abstract class AbstractDecoder implements Decoder {
     public ClassInfo readClass() throws IOException {
         byte tag = readRawByte();
         if (DataTypes.isClass(tag)) {
-            return ClassInfo.create(this);
+            if (DataTypes.isClassInfo(tag)) {
+                return ClassInfo.create(this);
+            } else {
+                String signature = readString();
+                return registry.load(signature);
+            }
         } else {
             throw new DecoderException("Cannot decode class, tag " + DataTypes.tagToString(tag));
         }

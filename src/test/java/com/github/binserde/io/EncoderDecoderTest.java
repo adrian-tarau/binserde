@@ -268,7 +268,7 @@ class EncoderDecoderTest {
         encoder.writeClass(ClassInfo.create(Order.class));
         encoder.close();
         createDecoder();
-        assertEquals(126, outputStream.size());
+        assertEquals(134, outputStream.size());
         ClassInfo classInfo = decoder.readClass();
         assertEquals(100, classInfo.getIdentifier());
         assertEquals(5, classInfo.getFields().size());

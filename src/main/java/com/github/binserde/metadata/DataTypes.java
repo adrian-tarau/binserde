@@ -88,7 +88,15 @@ public class DataTypes {
     }
 
     public static boolean isClass(byte value) {
-        return value == (BASE | BASE_CLASS_INFO) || value == (BASE | BASE_CLASS_SIGNATURE);
+        return isClassInfo(value) || isClassSignature(value);
+    }
+
+    public static boolean isClassInfo(byte value) {
+        return value == (BASE | BASE_CLASS_INFO);
+    }
+
+    public static boolean isClassSignature(byte value) {
+        return value == (BASE | BASE_CLASS_SIGNATURE);
     }
 
     public static boolean isBoolean(byte value) {

@@ -81,7 +81,7 @@ public class ReflectionSerializer<T> extends AbstractSerializer<T> {
                     timeSerializer.serialize(fieldInfo, data, encoder);
                     break;
                 default:
-                    throw new SerializerException("Unhandled enum " + fieldInfo.getDataType().getCategory());
+                    throw new SerializerException("Unhandled category " + fieldInfo.getDataType().getCategory());
             }
         }
     }

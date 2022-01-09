@@ -17,46 +17,42 @@
  * under the License.
  */
 
-package com.github.binserde.serializer;
+package com.github.binserde.deserializer;
 
-import com.github.binserde.io.Encoder;
+import com.github.binserde.io.Decoder;
 import com.github.binserde.metadata.FieldInfo;
+import com.github.binserde.serializer.SerializerException;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 
- class ReflectionNumberSerializer extends ReflectionFieldSerializer {
+public class ReflectionNumberDeserializer extends ReflectionFieldDeserializer {
 
-    public ReflectionNumberSerializer(ReflectionSerializer<?> parent) {
+    public ReflectionNumberDeserializer(ReflectionDeserializer<?> parent) {
         super(parent);
     }
 
     @Override
-    void serialize(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
+    Object deserialize(FieldInfo fieldInfo, Field field, Decoder decoder) throws IOException {
         switch (fieldInfo.getDataType()) {
             case BYTE:
-                encoder.writeByte((Byte) value);
-                break;
+                return decoder.readByte();
             case SHORT:
-                encoder.writeShort((Short) value);
-                break;
+                return decoder.readShort();
             case INTEGER:
-                encoder.writeInteger((Integer) value);
-                break;
+                return decoder.readInteger();
             case LONG:
-                encoder.writeLong((Long) value);
-                break;
+                return decoder.readLong();
             case FLOAT:
-                encoder.writeFloat((Float) value);
-                break;
+                return decoder.readFloat();
             case DOUBLE:
-                encoder.writeDouble((Double) value);
-                break;
+                return decoder.readDouble();
             case BIG_INTEGER:
                 //encoder.writeString((String) value);
-                break;
+                return null;
             case BIG_DECIMAL:
                 //encoder.writeString((String) value);
-                break;
+                return null;
             default:
                 throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
         }

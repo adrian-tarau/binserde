@@ -20,6 +20,7 @@
 package com.github.binserde.serializer;
 
 import com.github.binserde.SerializerFactory;
+import com.github.binserde.deserializer.ReflectionDeserializer;
 import com.github.binserde.dto.Address;
 import com.github.binserde.dto.Customer;
 import com.github.binserde.dto.DtoUtils;
@@ -56,10 +57,19 @@ class ReflectionSerializerTest {
 
     @Test
     void serializeAddress() throws IOException {
+        Address address = Address.create();
         ReflectionSerializer<Address> serializer = new ReflectionSerializer<>(Address.class);
-        serializer.serialize(Address.create(), encoder);
+        serializer.serialize(address, encoder);
         createDecoder();
-        assertEquals(121, outputStream.size());
+        assertEquals(127, outputStream.size());
+
+        ReflectionDeserializer<Address> deserializer = new ReflectionDeserializer<>(Address.class);
+        Address daddres = deserializer.deserialize(decoder);
+        assertEquals(address.getCity(), daddres.getCity());
+        assertEquals(address.getNumber(), daddres.getNumber());
+        assertEquals(address.getState(), daddres.getState());
+        assertEquals(address.getStreet(), daddres.getStreet());
+        assertEquals(address.getType(), daddres.getType());
     }
 
     @Test
@@ -67,7 +77,7 @@ class ReflectionSerializerTest {
         ReflectionSerializer<Customer> serializer = new ReflectionSerializer<>(Customer.class);
         serializer.serialize(Customer.create(), encoder);
         createDecoder();
-        assertEquals(217, outputStream.size());
+        assertEquals(228, outputStream.size());
     }
 
     @Test
@@ -84,7 +94,16 @@ class ReflectionSerializerTest {
         ReflectionSerializer<Order> serializer = new ReflectionSerializer<>(Order.class);
         serializer.serialize(Order.create(5), encoder);
         createDecoder();
-        assertEquals(699, outputStream.size());
+        assertEquals(721, outputStream.size());
+    }
+
+    @Test
+    void serializeOrderWithRegistry() throws IOException {
+        enableRegistry();
+        ReflectionSerializer<Order> serializer = new ReflectionSerializer<>(Order.class);
+        serializer.serialize(Order.create(5), encoder);
+        createDecoder();
+        assertEquals(499, outputStream.size());
     }
 
     private void createDecoder() throws IOException {

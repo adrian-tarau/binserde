@@ -20,6 +20,7 @@
 package com.github.binserde.metadata;
 
 import com.github.binserde.SerializerFactory;
+import com.github.binserde.annotation.Tag;
 import com.github.binserde.io.Decoder;
 import com.github.binserde.io.Encoder;
 import com.github.binserde.utils.ArgumentUtils;
@@ -44,6 +45,7 @@ public class FieldInfo {
     private final DataType dataType;
     private final boolean primitive;
     private final short classIdentifier;
+    private final short tag;
 
     private Field field;
 
@@ -51,24 +53,27 @@ public class FieldInfo {
         ArgumentUtils.requireNonNull(field);
         DataType dataType = DataTypes.getDataType(field.getType());
         short identifier = dataType == OBJECT ? SerializerFactory.getInstance().getIdentifier(field.getType()) : -1;
-        FieldInfo fieldInfo = new FieldInfo(field.getName(), dataType, field.getType().isPrimitive(), identifier);
+        short tag = field.getAnnotation(Tag.class) != null ? field.getAnnotation(Tag.class).value() : NO_TAG;
+        FieldInfo fieldInfo = new FieldInfo(field.getName(), dataType, field.getType().isPrimitive(), identifier, tag);
         fieldInfo.field = field;
         return fieldInfo;
     }
 
     public static FieldInfo create(Decoder decoder) throws IOException {
         ArgumentUtils.requireNonNull(decoder);
-        FieldInfo fieldInfo = new FieldInfo(decoder.readString(), DataType.fromId(decoder.readByte()), decoder.readBoolean(), decoder.readShort());
+        FieldInfo fieldInfo = new FieldInfo(decoder.readString(), DataType.fromId(decoder.readByte()),
+                decoder.readBoolean(), decoder.readShort(), decoder.readShort());
         return fieldInfo;
     }
 
-    private FieldInfo(String name, DataType dataType, boolean primitive, short classIdentifier) {
+    private FieldInfo(String name, DataType dataType, boolean primitive, short classIdentifier, short tag) {
         ArgumentUtils.requireNonNull(name);
         ArgumentUtils.requireNonNull(dataType);
         this.name = name;
         this.dataType = dataType;
         this.primitive = primitive;
         this.classIdentifier = classIdentifier;
+        this.tag = tag;
     }
 
     /**
@@ -112,6 +117,17 @@ public class FieldInfo {
     }
 
     /**
+     * Returns the tag associated with the field.
+     * <p>
+     * Un the absence of tags, fields are resolved by field name which does not support renaming.
+     *
+     * @return the tag
+     */
+    public short getTag() {
+        return tag;
+    }
+
+    /**
      * Return a cached reflection field.
      *
      * @return a non-null instance
@@ -133,6 +149,7 @@ public class FieldInfo {
         encoder.writeByte((byte) dataType.ordinal());
         encoder.writeBoolean(primitive);
         encoder.writeShort(classIdentifier);
+        encoder.writeShort(tag);
     }
 
     @Override
@@ -144,6 +161,7 @@ public class FieldInfo {
 
         if (primitive != fieldInfo.primitive) return false;
         if (classIdentifier != fieldInfo.classIdentifier) return false;
+        if (tag != fieldInfo.tag) return false;
         if (!name.equals(fieldInfo.name)) return false;
         return dataType == fieldInfo.dataType;
     }
@@ -154,6 +172,7 @@ public class FieldInfo {
         result = 31 * result + dataType.hashCode();
         result = 31 * result + (primitive ? 1 : 0);
         result = 31 * result + (int) classIdentifier;
+        result = 31 * result + (int) tag;
         return result;
     }
 

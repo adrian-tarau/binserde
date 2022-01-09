@@ -17,36 +17,22 @@
  * under the License.
  */
 
-package com.github.binserde.serializer;
+package com.github.binserde.deserializer;
 
-import com.github.binserde.io.Encoder;
+import com.github.binserde.io.Decoder;
 import com.github.binserde.metadata.FieldInfo;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 
- class ReflectionOtherSerializer extends ReflectionFieldSerializer {
+public class ReflectionTimeDeserializer extends ReflectionFieldDeserializer {
 
-     ReflectionOtherSerializer(ReflectionSerializer<?> parent) {
+    public ReflectionTimeDeserializer(ReflectionDeserializer<?> parent) {
         super(parent);
     }
 
     @Override
-    void serialize(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
-        switch (fieldInfo.getDataType()) {
-            case BOOLEAN:
-                encoder.writeBoolean((Boolean) value);
-                break;
-            case CHARACTER:
-                encoder.writeCharacter((Character) value);
-                break;
-            case STRING:
-                encoder.writeString((String) value);
-                break;
-            case ENUM:
-                encoder.writeEnum((Enum<?>) value);
-                break;
-            default:
-                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
-        }
+    Object deserialize(FieldInfo fieldInfo, Field field, Decoder decoder) throws IOException {
+        return null;
     }
 }

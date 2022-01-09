@@ -28,9 +28,9 @@ import java.util.Map;
 
 import static com.github.binserde.metadata.DataTypes.*;
 
-public class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
+ class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
 
-    public ReflectionCollectionSerializer(ReflectionSerializer<?> parent) {
+     ReflectionCollectionSerializer(ReflectionSerializer<?> parent) {
         super(parent);
     }
 
