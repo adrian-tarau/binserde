@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.binserde.metadata.DataTypes.NULL;
 import static com.github.binserde.metadata.DataTypes.tagToString;
 
 public class ReflectionDeserializer<T> extends AbstractDeserializer<T> {
@@ -68,6 +69,8 @@ public class ReflectionDeserializer<T> extends AbstractDeserializer<T> {
     }
 
     private Object deserializeTree(ClassMapping classMapping) throws IOException {
+        byte tag = decoder.peekTag();
+        if (tag == NULL) return null;
         Object instance = classMapping.createInstance();
         int fieldIndex = 0;
         for (FieldInfo streamField : classMapping.streamFields) {
@@ -75,31 +78,33 @@ public class ReflectionDeserializer<T> extends AbstractDeserializer<T> {
                 ClassMapping fieldClassMapping = readClass();
                 return deserializeTree(fieldClassMapping);
             } else {
-                FieldInfo localField = classMapping.localFields[fieldIndex++];
-                Field _localField = localField.getField();
-                Object value;
-                switch (streamField.getDataType().getCategory()) {
-                    case OTHER:
-                        value = otherSerializer.deserialize(streamField, _localField, decoder);
-                        break;
-                    case NUMBER:
-                        value = numberSerializer.deserialize(streamField, _localField, decoder);
-                        break;
-                    case COLLECTION:
-                        value = collectionSerializer.deserialize(streamField, _localField, decoder);
-                        break;
-                    case TIME:
-                        value = timeSerializer.deserialize(streamField, _localField, decoder);
-                        break;
-                    default:
-                        throw new SerializerException("Unhandled category " + streamField.getDataType().getCategory());
-                }
-
-                if (localField != null) {
-                    try {
-                        localField.getField().set(instance, value);
-                    } catch (IllegalAccessException e) {
-                        throw new DeserializerException("Failed to set value for field '" + localField.getName(), e);
+                tag = decoder.peekTag();
+                if (tag != NULL) {
+                    FieldInfo localField = classMapping.localFields[fieldIndex++];
+                    Field _localField = localField != null ? localField.getField() : null;
+                    Object value = null;
+                    switch (streamField.getDataType().getCategory()) {
+                        case OTHER:
+                            value = otherSerializer.deserialize(streamField, _localField, decoder);
+                            break;
+                        case NUMBER:
+                            value = numberSerializer.deserialize(streamField, _localField, decoder);
+                            break;
+                        case COLLECTION:
+                            value = collectionSerializer.deserialize(streamField, _localField, decoder);
+                            break;
+                        case TIME:
+                            value = timeSerializer.deserialize(streamField, _localField, decoder);
+                            break;
+                        default:
+                            throw new SerializerException("Unhandled category " + streamField.getDataType().getCategory());
+                    }
+                    if (_localField != null) {
+                        try {
+                            _localField.set(instance, value);
+                        } catch (IllegalAccessException e) {
+                            throw new DeserializerException("Failed to set value for field '" + localField.getName(), e);
+                        }
                     }
                 }
             }

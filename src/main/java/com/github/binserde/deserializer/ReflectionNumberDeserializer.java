@@ -25,6 +25,9 @@ import com.github.binserde.serializer.SerializerException;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 
 public class ReflectionNumberDeserializer extends ReflectionFieldDeserializer {
 
@@ -48,11 +51,13 @@ public class ReflectionNumberDeserializer extends ReflectionFieldDeserializer {
             case DOUBLE:
                 return decoder.readDouble();
             case BIG_INTEGER:
-                //encoder.writeString((String) value);
-                return null;
+                return new BigInteger(decoder.readBytes());
             case BIG_DECIMAL:
-                //encoder.writeString((String) value);
-                return null;
+                int precision = decoder.readInteger();
+                int scale = decoder.readInteger();
+                BigInteger integer = new BigInteger(decoder.readBytes());
+                MathContext context = new MathContext(precision);
+                return new BigDecimal(integer, scale, context);
             default:
                 throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
         }

@@ -21,10 +21,7 @@ package com.github.binserde.serializer;
 
 import com.github.binserde.SerializerFactory;
 import com.github.binserde.deserializer.ReflectionDeserializer;
-import com.github.binserde.dto.Address;
-import com.github.binserde.dto.Customer;
-import com.github.binserde.dto.DtoUtils;
-import com.github.binserde.dto.Order;
+import com.github.binserde.dto.*;
 import com.github.binserde.io.Decoder;
 import com.github.binserde.io.Encoder;
 import com.github.binserde.io.InputStreamDecoder;
@@ -39,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ReflectionSerializerTest {
 
@@ -104,6 +102,32 @@ class ReflectionSerializerTest {
         serializer.serialize(Order.create(5), encoder);
         createDecoder();
         assertEquals(499, outputStream.size());
+    }
+
+    @Test
+    void serializeAllTypesEmptyObject() throws IOException {
+        AllSupportedTypes types = new AllSupportedTypes();
+        ReflectionSerializer<AllSupportedTypes> serializer = new ReflectionSerializer<>(AllSupportedTypes.class);
+        serializer.serialize(types, encoder);
+        createDecoder();
+        assertEquals(268, outputStream.size());
+
+        ReflectionDeserializer<AllSupportedTypes> deserializer = new ReflectionDeserializer<>(AllSupportedTypes.class);
+        AllSupportedTypes dtypes = deserializer.deserialize(decoder);
+        assertNotNull(dtypes);
+    }
+
+    @Test
+    void serializeAllTypesWithValues() throws IOException {
+        AllSupportedTypes types =  AllSupportedTypes.create();
+        ReflectionSerializer<AllSupportedTypes> serializer = new ReflectionSerializer<>(AllSupportedTypes.class);
+        serializer.serialize(types, encoder);
+        createDecoder();
+        assertEquals(286, outputStream.size());
+
+        ReflectionDeserializer<AllSupportedTypes> deserializer = new ReflectionDeserializer<>(AllSupportedTypes.class);
+        AllSupportedTypes dtypes = deserializer.deserialize(decoder);
+        assertNotNull(dtypes);
     }
 
     private void createDecoder() throws IOException {

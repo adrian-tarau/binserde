@@ -190,6 +190,22 @@ public abstract class AbstractDecoder implements Decoder {
         }
     }
 
+    @Override
+    public byte[] readBytes() throws IOException {
+        byte tag = readRawByte();
+        if (tag == NULL) {
+            return null;
+        } else {
+            int length = readInteger();
+            require(length);
+            byte[] bytes = new byte[length];
+            for (int index = 0; index < length; index++) {
+                bytes[index] = buffer[position++];
+            }
+            return bytes;
+        }
+    }
+
     abstract int read(byte[] buffer, int offset, int length) throws IOException;
 
     private void require(int bytes) throws IOException {

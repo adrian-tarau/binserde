@@ -147,6 +147,17 @@ public abstract class AbstractEncoder implements Encoder {
     }
 
     @Override
+    public void writeBytes(byte[] value) throws IOException {
+        if (value == null) {
+            writeNull();
+        } else {
+            writeRawByte((byte) (BASE | BASE_BIN));
+            writeInteger(value.length);
+            writeRawBytes(value);
+        }
+    }
+
+    @Override
     public void writeNull() throws IOException {
         writeRawByte(NULL);
     }

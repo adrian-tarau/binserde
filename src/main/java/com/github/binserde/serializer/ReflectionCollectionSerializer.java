@@ -69,7 +69,7 @@ import static com.github.binserde.metadata.DataTypes.*;
     void serializeMap(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
         Map<Object, Object> map = (Map<Object, Object>) value;
         int size = map.size();
-        encoder.writeTag((byte) (BASE | BASE_ARRAY));
+        encoder.writeTag((byte) (BASE | BASE_MAP));
         encoder.writeTag(fieldInfo.getDataType().getId());
         encoder.writeInteger(size);
         for (Map.Entry<Object, Object> entry : map.entrySet()) {

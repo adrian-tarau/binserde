@@ -17,39 +17,27 @@
  * under the License.
  */
 
-package com.github.binserde.io;
+package com.github.binserde.benchmark;
 
-import com.github.binserde.metadata.ClassInfo;
+import org.openjdk.jmh.annotations.*;
 
-import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
-public interface Decoder extends AutoCloseable {
+@State(Scope.Benchmark)
+@Threads(1)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@Fork(warmups = 1, value = 1)
+@Warmup(batchSize = -1, iterations = 10, time = 50, timeUnit = TimeUnit.MILLISECONDS)
+@Measurement(batchSize = -1, iterations = 10, time = 50, timeUnit = TimeUnit.MILLISECONDS)
+public abstract class AbstractBenchmark {
 
-    byte peekTag() throws IOException;
+    @Setup(Level.Invocation)
+    public void setupInvocation() throws Exception {
 
-    boolean readBoolean() throws IOException;
+    }
 
-    byte readByte() throws IOException;
+    @Setup(Level.Iteration)
+    public void setupIteration() throws Exception {
 
-    short readShort() throws IOException;
-
-    int readInteger() throws IOException;
-
-    long readLong() throws IOException;
-
-    float readFloat() throws IOException;
-
-    double readDouble() throws IOException;
-
-    char readCharacter() throws IOException;
-
-    <E extends Enum<E>> E readEnum(Class<E> enumClass) throws IOException;
-
-    String readString() throws IOException;
-
-    ClassInfo readClass() throws IOException;
-
-    byte[] readBytes() throws IOException;
-
-    void close() throws IOException;
+    }
 }

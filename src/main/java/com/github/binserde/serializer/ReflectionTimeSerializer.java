@@ -23,6 +23,7 @@ import com.github.binserde.io.Encoder;
 import com.github.binserde.metadata.FieldInfo;
 
 import java.io.IOException;
+import java.time.*;
 
 import static com.github.binserde.metadata.DataTypes.BASE;
 import static com.github.binserde.metadata.DataTypes.BASE_OBJECT;
@@ -39,35 +40,82 @@ class ReflectionTimeSerializer extends ReflectionFieldSerializer {
         encoder.writeTag(fieldInfo.getDataType().getId());
         switch (fieldInfo.getDataType()) {
             case TIME_DURATION:
+                encoder.writeLong(((Duration) value).toMillis());
                 break;
             case TIME_INSTANT:
+                encoder.writeLong(((Instant) value).toEpochMilli());
                 break;
             case TIME_LOCAL_DATE:
-
+                writeLocalDate((LocalDate) value, encoder);
                 break;
             case TIME_LOCAL_TIME:
-
+                writeLocalTime((LocalTime) value, encoder);
                 break;
             case TIME_LOCAL_DATETIME:
-
+                writeLocalDateTime((LocalDateTime) value, encoder);
                 break;
             case TIME_OFFSET_DATETIME:
-
+                writeOffsetDateTime((OffsetDateTime) value, encoder);
                 break;
             case TIME_ZONED_DATETIME:
-
+                writeZonedDateTime((ZonedDateTime) value, encoder);
                 break;
             case TIME_PERIOD:
-
+                writePeriod((Period) value, encoder);
                 break;
             case TIME_ZONE_ID:
-
+                writeZoneId((ZoneId) value, encoder);
                 break;
             case TIME_ZONE_OFFSET:
-
+                writeZoneOffset((ZoneOffset) value, encoder);
                 break;
             default:
                 throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
         }
     }
+
+    private void writeLocalDate(LocalDate localDate, Encoder encoder) throws IOException {
+        encoder.writeInteger(localDate.getYear());
+        encoder.writeByte((byte) localDate.getMonthValue());
+        encoder.writeByte((byte) localDate.getDayOfMonth());
+    }
+
+    private void writeLocalTime(LocalTime localTime, Encoder encoder) throws IOException {
+        encoder.writeByte((byte) localTime.getHour());
+        encoder.writeByte((byte) localTime.getMinute());
+        encoder.writeByte((byte) localTime.getSecond());
+        encoder.writeInteger((byte) localTime.getNano());
+    }
+
+    private void writeLocalDateTime(LocalDateTime localDataTime, Encoder encoder) throws IOException {
+        writeLocalDate(localDataTime.toLocalDate(), encoder);
+        writeLocalTime(localDataTime.toLocalTime(), encoder);
+    }
+
+    private void writeOffsetDateTime(OffsetDateTime offsetDataTime, Encoder encoder) throws IOException {
+        writeLocalDateTime(offsetDataTime.toLocalDateTime(), encoder);
+        writeZoneOffset(offsetDataTime.getOffset(), encoder);
+    }
+
+    private void writeZonedDateTime(ZonedDateTime zonedDataTime, Encoder encoder) throws IOException {
+        writeLocalDateTime(zonedDataTime.toLocalDateTime(), encoder);
+        writeZoneOffset(zonedDataTime.getOffset(), encoder);
+        writeZoneId(zonedDataTime.getZone(), encoder);
+    }
+
+    private void writeZoneOffset(ZoneOffset zoneOffset, Encoder encoder) throws IOException {
+        encoder.writeInteger(zoneOffset.getTotalSeconds());
+    }
+
+    private void writeZoneId(ZoneId zoneId, Encoder encoder) throws IOException {
+        encoder.writeString(zoneId.getId());
+    }
+
+    private void writePeriod(Period period, Encoder encoder) throws IOException {
+        encoder.writeInteger(period.getYears());
+        encoder.writeByte((byte) period.getMonths());
+        encoder.writeByte((byte) period.getDays());
+    }
+
+
 }

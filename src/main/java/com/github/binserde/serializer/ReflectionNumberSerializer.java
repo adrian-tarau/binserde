@@ -23,8 +23,10 @@ import com.github.binserde.io.Encoder;
 import com.github.binserde.metadata.FieldInfo;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
- class ReflectionNumberSerializer extends ReflectionFieldSerializer {
+class ReflectionNumberSerializer extends ReflectionFieldSerializer {
 
     public ReflectionNumberSerializer(ReflectionSerializer<?> parent) {
         super(parent);
@@ -52,10 +54,14 @@ import java.io.IOException;
                 encoder.writeDouble((Double) value);
                 break;
             case BIG_INTEGER:
-                //encoder.writeString((String) value);
+                BigInteger bigInteger = (BigInteger) value;
+                encoder.writeBytes(bigInteger.toByteArray());
                 break;
             case BIG_DECIMAL:
-                //encoder.writeString((String) value);
+                BigDecimal bigDecimal = (BigDecimal) value;
+                encoder.writeInteger(bigDecimal.scale());
+                encoder.writeInteger(bigDecimal.precision());
+                encoder.writeBytes(bigDecimal.unscaledValue().toByteArray());
                 break;
             default:
                 throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());

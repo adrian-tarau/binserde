@@ -31,6 +31,7 @@ public class DtoUtils {
         serializerFactory.register(Customer.class, CLASS_ID++);
         serializerFactory.register(Address.class, CLASS_ID++);
         serializerFactory.register(Product.class, CLASS_ID++);
+        serializerFactory.register(AllSupportedTypes.class, CLASS_ID++);
         serializerFactory.register(Order.class);
         serializerFactory.register(Order.Entry.class);
     }

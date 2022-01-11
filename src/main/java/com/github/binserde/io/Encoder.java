@@ -51,6 +51,8 @@ public interface Encoder extends AutoCloseable {
 
     void writeClass(ClassInfo clazz) throws IOException;
 
+    void writeBytes(byte[] value) throws IOException;
+
     @Override
     void close() throws IOException;
 }

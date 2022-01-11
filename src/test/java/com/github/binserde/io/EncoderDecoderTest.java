@@ -19,11 +19,13 @@
 
 package com.github.binserde.io;
 
+import com.github.binserde.SerializerFactory;
 import com.github.binserde.dto.Address;
 import com.github.binserde.dto.Customer;
 import com.github.binserde.dto.DtoUtils;
 import com.github.binserde.dto.Order;
 import com.github.binserde.metadata.ClassInfo;
+import com.github.binserde.metadata.NullRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,16 +34,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EncoderDecoderTest {
 
+    private SerializerFactory serializerFactory = SerializerFactory.getInstance();
     private ByteArrayOutputStream outputStream;
     private Encoder encoder;
     private Decoder decoder;
 
     @BeforeEach
     void setup() {
+        serializerFactory.setRegistry(new NullRegistry());
         outputStream = new ByteArrayOutputStream();
         encoder = new OutputStreamEncoder(outputStream);
     }
@@ -53,8 +57,8 @@ class EncoderDecoderTest {
         encoder.close();
         createDecoder();
         assertEquals(8, outputStream.size());
-        assertEquals(false, decoder.readBoolean());
-        assertEquals(true, decoder.readBoolean());
+        assertFalse(decoder.readBoolean());
+        assertTrue(decoder.readBoolean());
         decoder.close();
     }
 
@@ -239,7 +243,7 @@ class EncoderDecoderTest {
         encoder.close();
         createDecoder();
         assertEquals(11, outputStream.size());
-        assertEquals(null, decoder.readEnum(Address.Type.class));
+        assertNull(decoder.readEnum(Address.Type.class));
         assertEquals(Address.Type.BUSINESS, decoder.readEnum(Address.Type.class));
         assertEquals(Address.Type.RESIDENTIAL, decoder.readEnum(Address.Type.class));
     }
@@ -254,7 +258,7 @@ class EncoderDecoderTest {
         encoder.close();
         createDecoder();
         assertEquals(235, outputStream.size());
-        assertEquals(null, decoder.readString());
+        assertNull(decoder.readString());
         assertEquals("", decoder.readString());
         assertEquals(generateString(3), decoder.readString());
         assertEquals(generateString(15), decoder.readString());

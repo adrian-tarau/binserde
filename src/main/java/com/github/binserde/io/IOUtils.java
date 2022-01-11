@@ -21,7 +21,7 @@ package com.github.binserde.io;
 
 class IOUtils {
 
-    static final int BUFFER_SIZE = 16 * 1024;
+    static final int BUFFER_SIZE = 4 * 1024;
     static final int RESERVED_HEADER = 6;
     static final byte[] HEADER = {(byte) 0xA8, 0x75, (byte) 0xe7, 0x23};
 

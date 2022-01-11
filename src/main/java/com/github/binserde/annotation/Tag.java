@@ -21,10 +21,18 @@ package com.github.binserde.annotation;
 
 import java.lang.annotation.*;
 
+/**
+ * An annotation used to tag annotated elements.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Documented
 public @interface Tag {
 
+    /**
+     * Returns the tag.
+     *
+     * @return a positive integer
+     */
     short value();
 }
