@@ -20,11 +20,9 @@
 package com.github.binserde.deserializer;
 
 import com.github.binserde.io.Decoder;
-import com.github.binserde.metadata.FieldInfo;
-import com.github.binserde.serializer.SerializerException;
+import com.github.binserde.metadata.DataType;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -36,8 +34,8 @@ public class ReflectionNumberDeserializer extends ReflectionFieldDeserializer {
     }
 
     @Override
-    Object deserialize(FieldInfo fieldInfo, Field field, Decoder decoder) throws IOException {
-        switch (fieldInfo.getDataType()) {
+    Object deserialize(DataType dataType, Decoder decoder) throws IOException {
+        switch (dataType) {
             case BYTE:
                 return decoder.readByte();
             case SHORT:
@@ -59,7 +57,7 @@ public class ReflectionNumberDeserializer extends ReflectionFieldDeserializer {
                 MathContext context = new MathContext(precision);
                 return new BigDecimal(integer, scale, context);
             default:
-                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
+                throw new DeserializerException("Unhandled data type " + dataType);
         }
     }
 }

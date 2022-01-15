@@ -25,7 +25,11 @@ import java.io.IOException;
 
 public interface Decoder extends AutoCloseable {
 
+    byte getVersion() throws IOException;
+
     byte peekTag() throws IOException;
+
+    byte readTag() throws IOException;
 
     boolean readBoolean() throws IOException;
 
@@ -43,7 +47,7 @@ public interface Decoder extends AutoCloseable {
 
     char readCharacter() throws IOException;
 
-    <E extends Enum<E>> E readEnum(Class<E> enumClass) throws IOException;
+    <E extends Enum<E>> E readEnum() throws IOException;
 
     String readString() throws IOException;
 

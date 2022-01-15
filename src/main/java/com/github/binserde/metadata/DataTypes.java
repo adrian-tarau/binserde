@@ -134,15 +134,25 @@ public class DataTypes {
             if (isSubclass(clazz, List.class)) {
                 return DataType.LIST;
             } else if (isSubclass(clazz, Set.class)) {
-                return DataType.SET;
-            } else if (isSubclass(clazz, Map.class)) {
-                return DataType.MAP;
-            } else if (isSubclass(clazz, SortedSet.class)) {
-                return DataType.SORTED_SET;
-            } else if (isSubclass(clazz, SortedMap.class)) {
-                return DataType.SORTED_MAP;
+                if (isSubclass(clazz, SortedSet.class)) {
+                    return DataType.SORTED_SET;
+                } else {
+                    return DataType.SET;
+                }
+            } else if (isSubclass(clazz, Queue.class)) {
+                if (isSubclass(clazz, Deque.class)) {
+                    return DataType.DEQUE;
+                } else {
+                    return DataType.QUEUE;
+                }
             } else {
                 throw new MetadataException("Unknown collection class " + clazz.getName());
+            }
+        } else if (isSubclass(clazz, Map.class)) {
+            if (isSubclass(clazz, SortedMap.class)) {
+                return DataType.SORTED_MAP;
+            } else {
+                return DataType.MAP;
             }
         } else if (clazz.isEnum()) {
             return DataType.ENUM;

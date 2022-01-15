@@ -22,12 +22,15 @@ package com.github.binserde.serializer;
 import com.github.binserde.io.Encoder;
 import com.github.binserde.metadata.ClassInfo;
 import com.github.binserde.metadata.DataType;
+import com.github.binserde.metadata.DataTypes;
 import com.github.binserde.metadata.FieldInfo;
 import com.github.binserde.utils.ArgumentUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.github.binserde.metadata.DataTypes.OBJECT;
 
 public class ReflectionSerializer<T> extends AbstractSerializer<T> {
 
@@ -52,47 +55,66 @@ public class ReflectionSerializer<T> extends AbstractSerializer<T> {
     }
 
     void serializeTree(Object data) throws IOException {
-        ClassInfo classInfo = getClassInfo(data);
+        ClassInfo classInfo = writeObjectHeader(data);
         for (FieldInfo fieldInfo : classInfo.getFields()) {
             Object value = get(data, fieldInfo);
-            if (value == null) {
-                encoder.writeNull();
-            } else {
-                serializeField(fieldInfo, value);
-            }
+            serializeValue(fieldInfo.getDataType(), value);
         }
     }
 
-    private void serializeField(FieldInfo fieldInfo, Object data) throws IOException {
-        if (fieldInfo.getDataType() == DataType.OBJECT) {
-            serializeTree(data);
+    void serializeValue(Object data) throws IOException {
+        if (data == null) {
+            encoder.writeNull();
         } else {
-            switch (fieldInfo.getDataType().getCategory()) {
-                case OTHER:
-                    otherSerializer.serialize(fieldInfo, data, encoder);
-                    break;
-                case NUMBER:
-                    numberSerializer.serialize(fieldInfo, data, encoder);
-                    break;
-                case COLLECTION:
-                    collectionSerializer.serialize(fieldInfo, data, encoder);
-                    break;
-                case TIME:
-                    timeSerializer.serialize(fieldInfo, data, encoder);
-                    break;
-                default:
-                    throw new SerializerException("Unhandled category " + fieldInfo.getDataType().getCategory());
+            DataType dataType = DataTypes.getDataType(data.getClass());
+            encoder.writeTag(DataTypes.OBJECT);
+            encoder.writeTag(dataType.getId());
+            serializeValue(dataType, data);
+        }
+
+    }
+
+    void serializeValue(DataType dataType, Object data) throws IOException {
+        if (data == null) {
+            encoder.writeNull();
+        } else {
+            if (dataType == DataType.OBJECT) {
+                serializeTree(data);
+            } else {
+                serializeBasicValue(dataType, data);
             }
         }
     }
 
-    private ClassInfo getClassInfo(Object data) throws IOException {
+    private void serializeBasicValue(DataType dataType, Object data) throws IOException {
+        switch (dataType.getCategory()) {
+            case OTHER:
+                otherSerializer.serialize(dataType, data, encoder);
+                break;
+            case NUMBER:
+                numberSerializer.serialize(dataType, data, encoder);
+                break;
+            case COLLECTION:
+                collectionSerializer.serialize(dataType, data, encoder);
+                break;
+            case TIME:
+                timeSerializer.serialize(dataType, data, encoder);
+                break;
+            default:
+                throw new SerializerException("Unhandled category " + dataType.getCategory());
+        }
+    }
+
+    private ClassInfo writeObjectHeader(Object data) throws IOException {
         Class<?> clazz = data.getClass();
         ClassInfo classInfo = classes.get(clazz);
-        if (classInfo != null) return classInfo;
-        classInfo = ClassInfo.create(clazz);
-        encoder.writeClass(classInfo);
-        classes.put(clazz, classInfo);
+        if (classInfo == null) {
+            classInfo = ClassInfo.create(clazz);
+            encoder.writeClass(classInfo);
+            classes.put(clazz, classInfo);
+        }
+        encoder.writeTag(OBJECT);
+        encoder.writeShort(classInfo.getIdentifier());
         return classInfo;
     }
 

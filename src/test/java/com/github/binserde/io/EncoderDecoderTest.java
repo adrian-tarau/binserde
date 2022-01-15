@@ -51,12 +51,20 @@ class EncoderDecoderTest {
     }
 
     @Test
+    void version() throws IOException {
+        encoder.writeInteger(0);
+        encoder.close();
+        createDecoder();
+        assertEquals(1, decoder.getVersion());
+    }
+
+    @Test
     void booleans() throws IOException {
         encoder.writeBoolean(false);
         encoder.writeBoolean(true);
         encoder.close();
         createDecoder();
-        assertEquals(8, outputStream.size());
+        assertEquals(13, outputStream.size());
         assertFalse(decoder.readBoolean());
         assertTrue(decoder.readBoolean());
         decoder.close();
@@ -69,7 +77,7 @@ class EncoderDecoderTest {
         encoder.writeByte(Byte.MAX_VALUE);
         encoder.close();
         createDecoder();
-        assertEquals(11, outputStream.size());
+        assertEquals(16, outputStream.size());
         assertEquals(0, decoder.readByte());
         assertEquals(Byte.MIN_VALUE, decoder.readByte());
         assertEquals(Byte.MAX_VALUE, decoder.readByte());
@@ -83,7 +91,7 @@ class EncoderDecoderTest {
         encoder.writeByte(Byte.MAX_VALUE);
         encoder.close();
         createDecoder();
-        assertEquals(488, outputStream.size());
+        assertEquals(493, outputStream.size());
         for (byte value = Byte.MIN_VALUE; value < Byte.MAX_VALUE; value++) {
             assertEquals(value, decoder.readByte());
         }
@@ -97,7 +105,7 @@ class EncoderDecoderTest {
         encoder.writeShort(Short.MAX_VALUE);
         encoder.close();
         createDecoder();
-        assertEquals(13, outputStream.size());
+        assertEquals(18, outputStream.size());
         assertEquals(0, decoder.readShort());
         assertEquals(Short.MIN_VALUE, decoder.readShort());
         assertEquals(Short.MAX_VALUE, decoder.readShort());
@@ -130,7 +138,7 @@ class EncoderDecoderTest {
         encoder.writeInteger(-1);
         encoder.close();
         createDecoder();
-        assertEquals(18, outputStream.size());
+        assertEquals(23, outputStream.size());
         assertEquals(0, decoder.readInteger());
         assertEquals(Integer.MIN_VALUE, decoder.readInteger());
         assertEquals(Integer.MAX_VALUE, decoder.readInteger());
@@ -166,7 +174,7 @@ class EncoderDecoderTest {
         encoder.writeLong(Integer.MAX_VALUE);
         encoder.close();
         createDecoder();
-        assertEquals(34, outputStream.size());
+        assertEquals(39, outputStream.size());
         assertEquals(0, decoder.readLong());
         assertEquals(Long.MIN_VALUE, decoder.readLong());
         assertEquals(Long.MAX_VALUE, decoder.readLong());
@@ -201,7 +209,7 @@ class EncoderDecoderTest {
         encoder.writeFloat(Float.MAX_VALUE);
         encoder.close();
         createDecoder();
-        assertEquals(21, outputStream.size());
+        assertEquals(26, outputStream.size());
         assertEquals(0, decoder.readFloat());
         assertEquals(Float.MIN_VALUE, decoder.readFloat());
         assertEquals(Float.MAX_VALUE, decoder.readFloat());
@@ -214,7 +222,7 @@ class EncoderDecoderTest {
         encoder.writeDouble(Double.MAX_VALUE);
         encoder.close();
         createDecoder();
-        assertEquals(33, outputStream.size());
+        assertEquals(38, outputStream.size());
         assertEquals(0, decoder.readDouble());
         assertEquals(Double.MIN_VALUE, decoder.readDouble());
         assertEquals(Double.MAX_VALUE, decoder.readDouble());
@@ -228,7 +236,7 @@ class EncoderDecoderTest {
         encoder.writeCharacter('a');
         encoder.close();
         createDecoder();
-        assertEquals(10, outputStream.size());
+        assertEquals(15, outputStream.size());
         assertEquals(' ', decoder.readCharacter());
         assertEquals('0', decoder.readCharacter());
         assertEquals('A', decoder.readCharacter());
@@ -237,15 +245,16 @@ class EncoderDecoderTest {
 
     @Test
     void enums() throws IOException {
+        DtoUtils.init();
         encoder.writeEnum(null);
         encoder.writeEnum(Address.Type.BUSINESS);
         encoder.writeEnum(Address.Type.RESIDENTIAL);
         encoder.close();
         createDecoder();
-        assertEquals(11, outputStream.size());
-        assertNull(decoder.readEnum(Address.Type.class));
-        assertEquals(Address.Type.BUSINESS, decoder.readEnum(Address.Type.class));
-        assertEquals(Address.Type.RESIDENTIAL, decoder.readEnum(Address.Type.class));
+        assertEquals(20, outputStream.size());
+        assertNull(decoder.readEnum());
+        assertEquals(Address.Type.BUSINESS, decoder.readEnum());
+        assertEquals(Address.Type.RESIDENTIAL, decoder.readEnum());
     }
 
     @Test
@@ -257,7 +266,7 @@ class EncoderDecoderTest {
         encoder.writeString(generateString(200));
         encoder.close();
         createDecoder();
-        assertEquals(235, outputStream.size());
+        assertEquals(240, outputStream.size());
         assertNull(decoder.readString());
         assertEquals("", decoder.readString());
         assertEquals(generateString(3), decoder.readString());
@@ -272,7 +281,7 @@ class EncoderDecoderTest {
         encoder.writeClass(ClassInfo.create(Order.class));
         encoder.close();
         createDecoder();
-        assertEquals(134, outputStream.size());
+        assertEquals(139, outputStream.size());
         ClassInfo classInfo = decoder.readClass();
         assertEquals(100, classInfo.getIdentifier());
         assertEquals(5, classInfo.getFields().size());

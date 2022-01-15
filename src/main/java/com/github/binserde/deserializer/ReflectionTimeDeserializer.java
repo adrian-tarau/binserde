@@ -20,10 +20,10 @@
 package com.github.binserde.deserializer;
 
 import com.github.binserde.io.Decoder;
-import com.github.binserde.metadata.FieldInfo;
+import com.github.binserde.metadata.DataType;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.time.*;
 
 public class ReflectionTimeDeserializer extends ReflectionFieldDeserializer {
 
@@ -32,7 +32,70 @@ public class ReflectionTimeDeserializer extends ReflectionFieldDeserializer {
     }
 
     @Override
-    Object deserialize(FieldInfo fieldInfo, Field field, Decoder decoder) throws IOException {
-        return null;
+    Object deserialize(DataType dataType, Decoder decoder) throws IOException {
+        switch (dataType) {
+            case TIME_DURATION:
+                return readDuration(decoder);
+            case TIME_INSTANT:
+                return readInstant(decoder);
+            case TIME_LOCAL_DATE:
+                return readLocalDate(decoder);
+            case TIME_LOCAL_TIME:
+                return readLocalTime(decoder);
+            case TIME_LOCAL_DATETIME:
+                return readLocalDateTime(decoder);
+            case TIME_OFFSET_DATETIME:
+                return readOffsetDateTime(decoder);
+            case TIME_ZONED_DATETIME:
+                return readZonedDateTime(decoder);
+            case TIME_PERIOD:
+                return readPeriod(decoder);
+            case TIME_ZONE_ID:
+                return readZoneId(decoder);
+            case TIME_ZONE_OFFSET:
+                return readZoneOffset(decoder);
+            default:
+                throw new DeserializerException("Unhandled data type " + dataType);
+        }
+    }
+
+    private Duration readDuration(Decoder decoder) throws IOException {
+        return Duration.ofMillis(decoder.readLong());
+    }
+
+    private Instant readInstant(Decoder decoder) throws IOException {
+        return Instant.ofEpochSecond(decoder.readLong(), decoder.readInteger());
+    }
+
+    private LocalDate readLocalDate(Decoder decoder) throws IOException {
+        return LocalDate.of(decoder.readInteger(), decoder.readByte(), decoder.readByte());
+    }
+
+    private LocalTime readLocalTime(Decoder decoder) throws IOException {
+        return LocalTime.of(decoder.readByte(), decoder.readByte(), decoder.readByte(), decoder.readInteger());
+    }
+
+    private LocalDateTime readLocalDateTime(Decoder decoder) throws IOException {
+        return LocalDateTime.of(readLocalDate(decoder), readLocalTime(decoder));
+    }
+
+    private OffsetDateTime readOffsetDateTime(Decoder decoder) throws IOException {
+        return OffsetDateTime.of(readLocalDateTime(decoder), readZoneOffset(decoder));
+    }
+
+    private ZonedDateTime readZonedDateTime(Decoder decoder) throws IOException {
+        return ZonedDateTime.of(readLocalDateTime(decoder), readZoneId(decoder));
+    }
+
+    private ZoneOffset readZoneOffset(Decoder decoder) throws IOException {
+        return ZoneOffset.ofTotalSeconds(decoder.readInteger());
+    }
+
+    private ZoneId readZoneId(Decoder decoder) throws IOException {
+        return ZoneId.of(decoder.readString());
+    }
+
+    private Period readPeriod(Decoder decoder) throws IOException {
+        return Period.of(decoder.readInteger(), decoder.readByte(), decoder.readByte());
     }
 }

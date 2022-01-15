@@ -24,7 +24,6 @@ import com.github.binserde.metadata.ClassInfo;
 import com.github.binserde.metadata.DataType;
 import com.github.binserde.metadata.DataTypes;
 import com.github.binserde.metadata.FieldInfo;
-import com.github.binserde.serializer.SerializerException;
 import com.github.binserde.utils.ArgumentUtils;
 
 import java.io.IOException;
@@ -35,13 +34,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.binserde.metadata.DataTypes.NULL;
-import static com.github.binserde.metadata.DataTypes.tagToString;
+import static com.github.binserde.metadata.DataTypes.*;
 
 public class ReflectionDeserializer<T> extends AbstractDeserializer<T> {
 
     private final Map<Class<?>, ClassInfo> classes = new HashMap<>();
-    private final Map<String, ClassMapping> mappings = new HashMap<>();
+    private final Map<String, ClassMapping> mappingsBySignature = new HashMap<>();
+    private final Map<Short, ClassMapping> mappingByIdentifier = new HashMap<>();
     private Decoder decoder;
 
     private final ReflectionFieldDeserializer otherSerializer = new ReflectionOtherDeserializer(this);
@@ -61,62 +60,93 @@ public class ReflectionDeserializer<T> extends AbstractDeserializer<T> {
 
         byte tag = decoder.peekTag();
         if (DataTypes.isClass(tag)) {
-            ClassMapping classMapping = readClass();
-            return (T) deserializeTree(classMapping);
+            ClassMapping classMapping = readObjectHeader();
+            return (T) deserializeTree(classMapping, true);
         } else {
             throw new DeserializerException("A class signature is expected, but received tag " + tagToString(tag));
         }
     }
 
-    private Object deserializeTree(ClassMapping classMapping) throws IOException {
+    Object deserializeValue(Decoder decoder) throws IOException {
         byte tag = decoder.peekTag();
-        if (tag == NULL) return null;
+        if (tag == NULL) {
+            return null;
+        } else {
+            tag = decoder.readTag();
+            if (tag != OBJECT) throw new DeserializerException("Expected object tag, got " + DataTypes.tagToString(tag));
+            DataType dataType = DataType.fromId(decoder.readTag());
+            return deserializeBasic(dataType);
+        }
+    }
+
+    private Object deserializeTree(ClassMapping classMapping, boolean root) throws IOException {
         Object instance = classMapping.createInstance();
         int fieldIndex = 0;
         for (FieldInfo streamField : classMapping.streamFields) {
-            if (streamField.getDataType() == DataType.OBJECT) {
-                ClassMapping fieldClassMapping = readClass();
-                return deserializeTree(fieldClassMapping);
+            DataType streamDataType = streamField.getDataType();
+            FieldInfo localField = classMapping.localFields[fieldIndex++];
+            Field _localField = localField != null ? localField.getField() : null;
+            Object value = null;
+            byte tag = decoder.peekTag();
+            if (tag != NULL) {
+                if (streamField.getDataType() == DataType.OBJECT) {
+                    ClassMapping fieldClassMapping = readObjectHeader();
+                    value = deserializeTree(fieldClassMapping, false);
+                } else {
+                    value = deserializeBasic(streamDataType);
+                }
             } else {
-                tag = decoder.peekTag();
-                if (tag != NULL) {
-                    FieldInfo localField = classMapping.localFields[fieldIndex++];
-                    Field _localField = localField != null ? localField.getField() : null;
-                    Object value = null;
-                    switch (streamField.getDataType().getCategory()) {
-                        case OTHER:
-                            value = otherSerializer.deserialize(streamField, _localField, decoder);
-                            break;
-                        case NUMBER:
-                            value = numberSerializer.deserialize(streamField, _localField, decoder);
-                            break;
-                        case COLLECTION:
-                            value = collectionSerializer.deserialize(streamField, _localField, decoder);
-                            break;
-                        case TIME:
-                            value = timeSerializer.deserialize(streamField, _localField, decoder);
-                            break;
-                        default:
-                            throw new SerializerException("Unhandled category " + streamField.getDataType().getCategory());
-                    }
-                    if (_localField != null) {
-                        try {
-                            _localField.set(instance, value);
-                        } catch (IllegalAccessException e) {
-                            throw new DeserializerException("Failed to set value for field '" + localField.getName(), e);
-                        }
-                    }
+                tag = decoder.readTag();
+            }
+            if (_localField != null) {
+                try {
+                    _localField.set(instance, value);
+                } catch (IllegalAccessException e) {
+                    throw new DeserializerException("Failed to set value for field '" + localField.getName(), e);
                 }
             }
         }
         return instance;
     }
 
-    private ClassMapping readClass() throws IOException {
+    private Object deserializeBasic(DataType dataType) throws IOException {
+        switch (dataType.getCategory()) {
+            case OTHER:
+                return otherSerializer.deserialize(dataType, decoder);
+            case NUMBER:
+                return numberSerializer.deserialize(dataType, decoder);
+            case COLLECTION:
+                return collectionSerializer.deserialize(dataType, decoder);
+            case TIME:
+                return timeSerializer.deserialize(dataType, decoder);
+            default:
+                throw new DeserializerException("Unhandled category " + dataType.getCategory());
+        }
+    }
+
+
+    private void readClass() throws IOException {
         ClassInfo streamClassInfo = decoder.readClass();
-        classes.putIfAbsent(streamClassInfo.getClass(), streamClassInfo);
-        return mappings.computeIfAbsent(streamClassInfo.getSignature(),
+        classes.putIfAbsent(streamClassInfo.getClazz(), streamClassInfo);
+        ClassMapping classMapping = mappingsBySignature.computeIfAbsent(streamClassInfo.getSignature(),
                 s -> new ClassMapping(ClassInfo.create(streamClassInfo.getClazz()), streamClassInfo));
+        mappingByIdentifier.computeIfAbsent(streamClassInfo.getIdentifier(), integer -> classMapping);
+    }
+
+    private ClassMapping readObjectHeader() throws IOException {
+        if (DataTypes.isClass(decoder.peekTag())) {
+            readClass();
+        }
+        byte tag = decoder.readTag();
+        if (tag != OBJECT) {
+            throw new DeserializerException("Expecting an object tag, got " + DataTypes.tagToString(tag));
+        }
+        short identifier = decoder.readShort();
+        ClassMapping classMapping = mappingByIdentifier.get(identifier);
+        if (classMapping == null) {
+            throw new DeserializerException("A class with identifier " + identifier + " is not registered");
+        }
+        return classMapping;
     }
 
     private static class ClassMapping {

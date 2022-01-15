@@ -20,61 +20,53 @@
 package com.github.binserde.serializer;
 
 import com.github.binserde.io.Encoder;
-import com.github.binserde.metadata.FieldInfo;
+import com.github.binserde.metadata.DataType;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.github.binserde.metadata.DataTypes.*;
+class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
 
- class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
-
-     ReflectionCollectionSerializer(ReflectionSerializer<?> parent) {
+    ReflectionCollectionSerializer(ReflectionSerializer<?> parent) {
         super(parent);
     }
 
     @Override
-    void serialize(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
-        encoder.writeTag((byte) (BASE | BASE_OBJECT));
-        encoder.writeTag(fieldInfo.getDataType().getId());
-        switch (fieldInfo.getDataType()) {
+    void serialize(DataType dataType, Object value, Encoder encoder) throws IOException {
+        switch (dataType) {
             case LIST:
             case SET:
             case QUEUE:
             case DEQUE:
             case SORTED_SET:
-                serializeArray(fieldInfo, value, encoder);
+                serializeArray(value, encoder);
                 break;
             case MAP:
             case SORTED_MAP:
-                serializeMap(fieldInfo, value, encoder);
+                serializeMap(value, encoder);
                 break;
             default:
-                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
+                throw new SerializerException("Unhandled data type " + dataType);
         }
     }
 
-    void serializeArray(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
+    void serializeArray(Object value, Encoder encoder) throws IOException {
         Collection<Object> collection = (Collection<Object>) value;
         int size = collection.size();
-        encoder.writeTag((byte) (BASE | BASE_ARRAY));
-        encoder.writeTag(fieldInfo.getDataType().getId());
         encoder.writeInteger(size);
         for (Object collectionValue : collection) {
-            parent.serializeTree(collectionValue);
+            parent.serializeValue(collectionValue);
         }
     }
 
-    void serializeMap(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
+    void serializeMap(Object value, Encoder encoder) throws IOException {
         Map<Object, Object> map = (Map<Object, Object>) value;
         int size = map.size();
-        encoder.writeTag((byte) (BASE | BASE_MAP));
-        encoder.writeTag(fieldInfo.getDataType().getId());
         encoder.writeInteger(size);
         for (Map.Entry<Object, Object> entry : map.entrySet()) {
-            parent.serializeTree(entry.getKey());
-            parent.serializeTree(entry.getValue());
+            parent.serializeValue(entry.getKey());
+            parent.serializeValue(entry.getValue());
         }
     }
 }

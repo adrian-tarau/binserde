@@ -19,171 +19,96 @@
 
 package com.github.binserde.dto;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.*;
-
 public class AllSupportedTypes {
 
-    private byte b1;
-    private Byte b2;
-    private short s1;
-    private Short s2;
-    private int i1;
-    private Integer i2;
-    private long l1;
-    private Long l2;
-    private float f1;
-    private Float f2;
-    private double d1;
-    private Double d2;
-    private BigInteger bi1;
-    private BigDecimal bd1;
+    private boolean b1;
+    private Boolean b2;
+    private char c1;
+    private Character c2;
+    private String s2;
+    private Type type1;
+    private NumberTypes numbers;
+    private TimeTypes time;
 
-    private Duration td;
-    private Instant ti;
-    private LocalDate tld;
-    private LocalTime tlt;
-    private LocalDateTime tldt;
-    private OffsetDateTime todt;
-    private ZonedDateTime tzdt;
-    private Period tp;
-    private ZoneId tzi;
-    private ZoneOffset tzo;
-
-    public byte getB1() {
+    public boolean isB1() {
         return b1;
     }
 
-    public AllSupportedTypes setB1(byte b1) {
+    public AllSupportedTypes setB1(boolean b1) {
         this.b1 = b1;
         return this;
     }
 
-    public Byte getB2() {
+    public Boolean getB2() {
         return b2;
     }
 
-    public AllSupportedTypes setB2(Byte b2) {
+    public AllSupportedTypes setB2(Boolean b2) {
         this.b2 = b2;
         return this;
     }
 
-    public short getS1() {
-        return s1;
+    public char getC1() {
+        return c1;
     }
 
-    public AllSupportedTypes setS1(short s1) {
-        this.s1 = s1;
+    public AllSupportedTypes setC1(char c1) {
+        this.c1 = c1;
         return this;
     }
 
-    public Short getS2() {
+    public Character getC2() {
+        return c2;
+    }
+
+    public AllSupportedTypes setC2(Character c2) {
+        this.c2 = c2;
+        return this;
+    }
+
+    public String getS2() {
         return s2;
     }
 
-    public AllSupportedTypes setS2(Short s2) {
+    public AllSupportedTypes setS2(String s2) {
         this.s2 = s2;
         return this;
     }
 
-    public int getI1() {
-        return i1;
+    public Type getType1() {
+        return type1;
     }
 
-    public AllSupportedTypes setI1(int i1) {
-        this.i1 = i1;
+    public AllSupportedTypes setType1(Type type1) {
+        this.type1 = type1;
         return this;
     }
 
-    public Integer getI2() {
-        return i2;
+    public NumberTypes getNumbers() {
+        return numbers;
     }
 
-    public AllSupportedTypes setI2(Integer i2) {
-        this.i2 = i2;
+    public AllSupportedTypes setNumbers(NumberTypes numbers) {
+        this.numbers = numbers;
         return this;
     }
 
-    public long getL1() {
-        return l1;
+    public TimeTypes getTime() {
+        return time;
     }
 
-    public AllSupportedTypes setL1(long l1) {
-        this.l1 = l1;
-        return this;
-    }
-
-    public Long getL2() {
-        return l2;
-    }
-
-    public AllSupportedTypes setL2(Long l2) {
-        this.l2 = l2;
-        return this;
-    }
-
-    public float getF1() {
-        return f1;
-    }
-
-    public AllSupportedTypes setF1(float f1) {
-        this.f1 = f1;
-        return this;
-    }
-
-    public Float getF2() {
-        return f2;
-    }
-
-    public AllSupportedTypes setF2(Float f2) {
-        this.f2 = f2;
-        return this;
-    }
-
-    public double getD1() {
-        return d1;
-    }
-
-    public AllSupportedTypes setD1(double d1) {
-        this.d1 = d1;
-        return this;
-    }
-
-    public Double getD2() {
-        return d2;
-    }
-
-    public AllSupportedTypes setD2(Double d2) {
-        this.d2 = d2;
-        return this;
-    }
-
-    public BigInteger getBi1() {
-        return bi1;
-    }
-
-    public AllSupportedTypes setBi1(BigInteger bi1) {
-        this.bi1 = bi1;
-        return this;
-    }
-
-    public BigDecimal getBd1() {
-        return bd1;
-    }
-
-    public AllSupportedTypes setBd1(BigDecimal bd1) {
-        this.bd1 = bd1;
+    public AllSupportedTypes setTime(TimeTypes time) {
+        this.time = time;
         return this;
     }
 
     public static AllSupportedTypes create() {
-        return new AllSupportedTypes().setB1((byte) 10).setB2((byte) 20)
-                .setS1((short) 20).setS2((short) 30)
-                .setI1(30).setI2(40)
-                .setL1(50L).setL2(60L)
-                .setF1(0.1f).setF2(0.2f)
-                .setD1(0.3).setD2(0.4)
-                .setBi1(BigInteger.valueOf(100)).setBd1(BigDecimal.valueOf(0.5));
+        return new AllSupportedTypes().setNumbers(NumberTypes.create()).setTime(TimeTypes.create())
+                .setB1(true).setB2(false).setC1('a').setC2('b').setS2("string").setType1(Type.TYPE2);
+    }
+
+    public enum Type {
+        TYPE1,
+        TYPE2
     }
 }

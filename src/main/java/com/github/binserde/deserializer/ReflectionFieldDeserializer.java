@@ -20,10 +20,9 @@
 package com.github.binserde.deserializer;
 
 import com.github.binserde.io.Decoder;
-import com.github.binserde.metadata.FieldInfo;
+import com.github.binserde.metadata.DataType;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 abstract class ReflectionFieldDeserializer {
 
@@ -33,5 +32,5 @@ abstract class ReflectionFieldDeserializer {
         this.parent = parent;
     }
 
-    abstract Object deserialize(FieldInfo fieldInfo, Field field, Decoder decoder) throws IOException;
+    abstract Object deserialize(DataType dataType, Decoder decoder) throws IOException;
 }

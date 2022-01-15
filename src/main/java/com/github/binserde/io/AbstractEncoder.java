@@ -27,15 +27,18 @@ import com.github.binserde.utils.ArgumentUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.StringJoiner;
 
-import static com.github.binserde.io.IOUtils.BUFFER_SIZE;
-import static com.github.binserde.io.IOUtils.RESERVED_HEADER;
+import static com.github.binserde.io.IOUtils.*;
 import static com.github.binserde.metadata.DataTypes.*;
 
 public abstract class AbstractEncoder implements Encoder {
 
-    private final byte[] buffer = new byte[BUFFER_SIZE];
+    private static final byte VERSION = 1;
+
+    private final byte[] buffer = new byte[CHUNK_SIZE];
     private int position = RESERVED_HEADER;
+    private final SerializerFactory factory = SerializerFactory.getInstance();
     private final Registry registry = SerializerFactory.getInstance().getRegistry();
 
     @Override
@@ -49,6 +52,7 @@ public abstract class AbstractEncoder implements Encoder {
             writeNull();
         } else {
             writeTag((byte) (BASE | BASE_ENUM));
+            writeRawShort(factory.getIdentifier(value.getClass()));
             writeInteger(value.ordinal());
         }
     }
@@ -174,13 +178,17 @@ public abstract class AbstractEncoder implements Encoder {
         short totalLength = (short) position;
         int hash = IOUtils.hashCode(buffer, RESERVED_HEADER, length);
         position = 0;
+        for (int index = 0; index < HEADER.length; index++) {
+            buffer[position++] = HEADER[index];
+        }
         writeRawShort(length);
         writeRawInteger(hash);
+        writeRawByte(VERSION);
         write(buffer, 0, totalLength);
     }
 
     private void require(int required) throws IOException {
-        if (BUFFER_SIZE - position < required) {
+        if (CHUNK_SIZE - position < required) {
             flush();
         }
     }
@@ -221,5 +229,12 @@ public abstract class AbstractEncoder implements Encoder {
         for (byte _byte : data) {
             buffer[position++] = _byte;
         }
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", AbstractEncoder.class.getSimpleName() + "[", "]")
+                .add("position=" + position)
+                .toString();
     }
 }

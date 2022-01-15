@@ -20,7 +20,7 @@
 package com.github.binserde.serializer;
 
 import com.github.binserde.io.Encoder;
-import com.github.binserde.metadata.FieldInfo;
+import com.github.binserde.metadata.DataType;
 
 import java.io.IOException;
 
@@ -32,5 +32,5 @@ abstract class ReflectionFieldSerializer {
         this.parent = parent;
     }
 
-    abstract void serialize(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException;
+    abstract void serialize(DataType dataType, Object value, Encoder encoder) throws IOException;
 }

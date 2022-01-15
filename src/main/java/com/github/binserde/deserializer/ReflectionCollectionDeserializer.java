@@ -20,10 +20,10 @@
 package com.github.binserde.deserializer;
 
 import com.github.binserde.io.Decoder;
-import com.github.binserde.metadata.FieldInfo;
+import com.github.binserde.metadata.DataType;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.util.*;
 
 public class ReflectionCollectionDeserializer extends ReflectionFieldDeserializer {
 
@@ -32,7 +32,64 @@ public class ReflectionCollectionDeserializer extends ReflectionFieldDeserialize
     }
 
     @Override
-    Object deserialize(FieldInfo fieldInfo, Field field, Decoder decoder) throws IOException {
-        return null;
+    Object deserialize(DataType dataType, Decoder decoder) throws IOException {
+        switch (dataType) {
+            case LIST:
+            case SET:
+            case QUEUE:
+            case DEQUE:
+            case SORTED_SET:
+                return deserializeArray(dataType, decoder);
+            case MAP:
+            case SORTED_MAP:
+                return deserializeMap(dataType, decoder);
+            default:
+                throw new DeserializerException("Unhandled data type " + dataType);
+        }
+    }
+
+    Object deserializeArray(DataType dataType, Decoder decoder) throws IOException {
+        int size = decoder.readInteger();
+        Collection<Object> collection = createCollectionType(dataType, size);
+        while (size-- > 0) {
+            collection.add(parent.deserializeValue(decoder));
+        }
+        return collection;
+    }
+
+    Object deserializeMap(DataType dataType, Decoder decoder) throws IOException {
+        int size = decoder.readInteger();
+        Map<Object, Object> map = createMapType(dataType, size);
+        while (size-- > 0) {
+            map.put(parent.deserializeValue(decoder), parent.deserializeValue(decoder));
+        }
+        return map;
+    }
+
+    private Collection<Object> createCollectionType(DataType dataType, int size) {
+        switch (dataType) {
+            case LIST:
+                return new ArrayList<>(size);
+            case SET:
+                return new HashSet<>(size);
+            case QUEUE:
+            case DEQUE:
+                return new ArrayDeque<>(size);
+            case SORTED_SET:
+                return new TreeSet<>();
+            default:
+                throw new DeserializerException("Unknown collection type: " + dataType);
+        }
+    }
+
+    private Map<Object, Object> createMapType(DataType dataType, int size) {
+        switch (dataType) {
+            case MAP:
+                return new HashMap<>(size);
+            case SORTED_MAP:
+                return new TreeMap<>();
+            default:
+                throw new DeserializerException("Unknown map type: " + dataType);
+        }
     }
 }

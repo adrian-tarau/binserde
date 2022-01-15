@@ -20,7 +20,7 @@
 package com.github.binserde.serializer;
 
 import com.github.binserde.io.Encoder;
-import com.github.binserde.metadata.FieldInfo;
+import com.github.binserde.metadata.DataType;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -33,8 +33,8 @@ class ReflectionNumberSerializer extends ReflectionFieldSerializer {
     }
 
     @Override
-    void serialize(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
-        switch (fieldInfo.getDataType()) {
+    void serialize(DataType dataType, Object value, Encoder encoder) throws IOException {
+        switch (dataType) {
             case BYTE:
                 encoder.writeByte((Byte) value);
                 break;
@@ -64,7 +64,7 @@ class ReflectionNumberSerializer extends ReflectionFieldSerializer {
                 encoder.writeBytes(bigDecimal.unscaledValue().toByteArray());
                 break;
             default:
-                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
+                throw new SerializerException("Unhandled data type " + dataType);
         }
     }
 }

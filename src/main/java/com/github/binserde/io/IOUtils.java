@@ -21,8 +21,19 @@ package com.github.binserde.io;
 
 class IOUtils {
 
-    static final int BUFFER_SIZE = 4 * 1024;
-    static final int RESERVED_HEADER = 6;
+    /**
+     * A hard coded chunk size
+     */
+    static final int CHUNK_SIZE = 4 * 1024;
+
+    /**
+     * The size of any block header is: 4 header + 2 blocks size + 4 checksum + 1 version
+     */
+    static final int RESERVED_HEADER = 11;
+
+    /**
+     * A header signature to make sure the block was serialized by the same library
+     */
     static final byte[] HEADER = {(byte) 0xA8, 0x75, (byte) 0xe7, 0x23};
 
     /**

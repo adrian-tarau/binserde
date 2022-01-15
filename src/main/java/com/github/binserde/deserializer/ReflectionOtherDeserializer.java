@@ -19,14 +19,15 @@
 
 package com.github.binserde.deserializer;
 
+import com.github.binserde.SerializerFactory;
 import com.github.binserde.io.Decoder;
-import com.github.binserde.metadata.FieldInfo;
-import com.github.binserde.serializer.SerializerException;
+import com.github.binserde.metadata.DataType;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 public class ReflectionOtherDeserializer extends ReflectionFieldDeserializer {
+
+    private final SerializerFactory factory = SerializerFactory.getInstance();
 
     public ReflectionOtherDeserializer(ReflectionDeserializer<?> parent) {
         super(parent);
@@ -34,8 +35,8 @@ public class ReflectionOtherDeserializer extends ReflectionFieldDeserializer {
 
     @SuppressWarnings("unchecked")
     @Override
-    Object deserialize(FieldInfo fieldInfo, Field field, Decoder decoder) throws IOException {
-        switch (fieldInfo.getDataType()) {
+    Object deserialize(DataType dataType, Decoder decoder) throws IOException {
+        switch (dataType) {
             case BOOLEAN:
                 return decoder.readBoolean();
             case CHARACTER:
@@ -43,10 +44,9 @@ public class ReflectionOtherDeserializer extends ReflectionFieldDeserializer {
             case STRING:
                 return decoder.readString();
             case ENUM:
-                Class<Enum> enumClass = field != null ? (Class<Enum>) field.getType() : Enum.class;
-                return decoder.readEnum(enumClass);
+                return decoder.readEnum();
             default:
-                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
+                throw new DeserializerException("Unhandled data type " + dataType);
         }
     }
 }

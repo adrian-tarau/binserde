@@ -20,24 +20,33 @@
 package com.github.binserde.io;
 
 import com.github.binserde.SerializerFactory;
+import com.github.binserde.deserializer.DeserializerException;
 import com.github.binserde.metadata.ClassInfo;
 import com.github.binserde.metadata.DataTypes;
 import com.github.binserde.metadata.Registry;
 
 import java.io.IOException;
+import java.util.StringJoiner;
 
-import static com.github.binserde.io.IOUtils.BUFFER_SIZE;
-import static com.github.binserde.io.IOUtils.RESERVED_HEADER;
+import static com.github.binserde.io.IOUtils.*;
 import static com.github.binserde.metadata.DataTypes.*;
 
 public abstract class AbstractDecoder implements Decoder {
 
+    private final SerializerFactory factory = SerializerFactory.getInstance();
     private final Registry registry = SerializerFactory.getInstance().getRegistry();
 
-    private final byte[] buffer = new byte[BUFFER_SIZE];
+    private final byte[] buffer = new byte[CHUNK_SIZE];
     private final static byte[] EMPTY_BYTES = new byte[0];
     private int position = RESERVED_HEADER;
     private int length = 0;
+    private byte version;
+
+    @Override
+    public byte getVersion() throws IOException {
+        require(1);
+        return version;
+    }
 
     @Override
     public byte peekTag() throws IOException {
@@ -53,6 +62,11 @@ public abstract class AbstractDecoder implements Decoder {
         } else {
             throw new DecoderException("Cannot decode boolean, tag " + DataTypes.tagToString(tag));
         }
+    }
+
+    @Override
+    public byte readTag() throws IOException {
+        return readRawByte();
     }
 
     @Override
@@ -146,19 +160,18 @@ public abstract class AbstractDecoder implements Decoder {
         return (char) readShort();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <E extends Enum<E>> E readEnum(Class<E> enumClass) throws IOException {
+    public <E extends Enum<E>> E readEnum() throws IOException {
         byte tag = readRawByte();
         if (tag == NULL) {
             return null;
-        } else {
+        } else if (tag == (BASE | BASE_ENUM)) {
+            Class<Enum<?>> enumClass = (Class<Enum<?>>) factory.getClass(readRawShort());
             int ordinal = readInteger();
-            if (Enum.class.equals(enumClass)) {
-                // in case there is no type, local field does not exist, just return null since it is not used
-                return null;
-            } else {
-                return enumClass.getEnumConstants()[ordinal];
-            }
+            return (E) enumClass.getEnumConstants()[ordinal];
+        } else {
+            throw new DecoderException("Cannot decode enum, tag " + DataTypes.tagToString(tag));
         }
     }
 
@@ -212,16 +225,20 @@ public abstract class AbstractDecoder implements Decoder {
         boolean shouldRead = length == 0 || position + bytes > length + RESERVED_HEADER;
         if (shouldRead) {
             int read = read(buffer, 0, RESERVED_HEADER);
-            if (read != RESERVED_HEADER) throw new IOException("Corrupted data, invalid block header");
+            if (read != RESERVED_HEADER) throw new DeserializerException("Corrupted data, invalid block header");
             length = RESERVED_HEADER;
             position = 0;
+            for (int index = 0; index < HEADER.length; index++) {
+                if (readRawByte() != HEADER[index]) throw new DeserializerException("Invalid block header signature");
+            }
             int storedLength = readRawShort();
             int storedHash = readRawInteger();
+            version = readRawByte();
             length = storedLength;
             int dataLength = read(buffer, RESERVED_HEADER, length);
-            if (storedLength != dataLength) throw new IOException("Corrupted data, invalid block length");
+            if (storedLength != dataLength) throw new DeserializerException("Corrupted data, invalid block length");
             int dataHash = IOUtils.hashCode(buffer, RESERVED_HEADER, length);
-            if (storedHash != dataHash) throw new IOException("Corrupted data, invalid block hash");
+            if (storedHash != dataHash) throw new DeserializerException("Corrupted data, invalid block hash");
         }
     }
 
@@ -272,5 +289,13 @@ public abstract class AbstractDecoder implements Decoder {
     private String readRawString(int length) throws IOException {
         byte[] bytes = readRawBytes(length);
         return new String(bytes);
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", AbstractDecoder.class.getSimpleName() + "[", "]")
+                .add("position=" + position)
+                .add("length=" + length)
+                .toString();
     }
 }

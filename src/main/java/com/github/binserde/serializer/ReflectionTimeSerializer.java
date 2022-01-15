@@ -20,13 +20,10 @@
 package com.github.binserde.serializer;
 
 import com.github.binserde.io.Encoder;
-import com.github.binserde.metadata.FieldInfo;
+import com.github.binserde.metadata.DataType;
 
 import java.io.IOException;
 import java.time.*;
-
-import static com.github.binserde.metadata.DataTypes.BASE;
-import static com.github.binserde.metadata.DataTypes.BASE_OBJECT;
 
 class ReflectionTimeSerializer extends ReflectionFieldSerializer {
 
@@ -35,15 +32,13 @@ class ReflectionTimeSerializer extends ReflectionFieldSerializer {
     }
 
     @Override
-    void serialize(FieldInfo fieldInfo, Object value, Encoder encoder) throws IOException {
-        encoder.writeTag((byte) (BASE | BASE_OBJECT));
-        encoder.writeTag(fieldInfo.getDataType().getId());
-        switch (fieldInfo.getDataType()) {
+    void serialize(DataType dataType, Object value, Encoder encoder) throws IOException {
+        switch (dataType) {
             case TIME_DURATION:
-                encoder.writeLong(((Duration) value).toMillis());
+                writeDuration((Duration) value, encoder);
                 break;
             case TIME_INSTANT:
-                encoder.writeLong(((Instant) value).toEpochMilli());
+                writeInstant((Instant) value, encoder);
                 break;
             case TIME_LOCAL_DATE:
                 writeLocalDate((LocalDate) value, encoder);
@@ -70,8 +65,17 @@ class ReflectionTimeSerializer extends ReflectionFieldSerializer {
                 writeZoneOffset((ZoneOffset) value, encoder);
                 break;
             default:
-                throw new SerializerException("Unhandled data type " + fieldInfo.getDataType());
+                throw new SerializerException("Unhandled data type " + dataType);
         }
+    }
+
+    private void writeDuration(Duration duration, Encoder encoder) throws IOException {
+        encoder.writeLong(duration.toMillis());
+    }
+
+    private void writeInstant(Instant instant, Encoder encoder) throws IOException {
+        encoder.writeLong(instant.getEpochSecond());
+        encoder.writeInteger(instant.getNano());
     }
 
     private void writeLocalDate(LocalDate localDate, Encoder encoder) throws IOException {
@@ -84,7 +88,7 @@ class ReflectionTimeSerializer extends ReflectionFieldSerializer {
         encoder.writeByte((byte) localTime.getHour());
         encoder.writeByte((byte) localTime.getMinute());
         encoder.writeByte((byte) localTime.getSecond());
-        encoder.writeInteger((byte) localTime.getNano());
+        encoder.writeInteger(localTime.getNano());
     }
 
     private void writeLocalDateTime(LocalDateTime localDataTime, Encoder encoder) throws IOException {
@@ -99,7 +103,6 @@ class ReflectionTimeSerializer extends ReflectionFieldSerializer {
 
     private void writeZonedDateTime(ZonedDateTime zonedDataTime, Encoder encoder) throws IOException {
         writeLocalDateTime(zonedDataTime.toLocalDateTime(), encoder);
-        writeZoneOffset(zonedDataTime.getOffset(), encoder);
         writeZoneId(zonedDataTime.getZone(), encoder);
     }
 
