@@ -167,17 +167,6 @@
                                     <goal>jar</goal>
                                 </goals>
                             </execution>
-                            <execution>
-                                <!-- build aggregate javadoc in parent only -->
-                                <id>default-cli</id>
-                                <goals>
-                                    <goal>aggregate</goal>
-                                </goals>
-                                <inherited>false</inherited>
-                                <configuration>
-                                    <overview>avro/src/main/java/overview.html</overview>
-                                </configuration>
-                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
