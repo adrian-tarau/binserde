@@ -23,7 +23,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github</groupId>
+    <groupId>net.tarau</groupId>
     <artifactId>binserde</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
@@ -37,6 +37,24 @@
     <description>A binary serializer/ deserializer implementation in Java.</description>
     <url>https://github.com/adrian-tarau/binserde</url>
 
+    <organization>
+        <name>Adrian Tarau</name>
+        <url>https://github.com/adrian-tarau</url>
+    </organization>
+
+    <scm>
+        <connection>scm:git:https://github.com/adrian-tarau/binserde</connection>
+        <developerConnection>scm:git:https://github.com/adrian-tarau/binserde</developerConnection>
+        <url>https://github.com/adrian-tarau/binserde/tree/main</url>
+    </scm>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/adrian-tarau/binserde/issues</url>
+    </issueManagement>
+
+    <inceptionYear>2022</inceptionYear>
+
     <properties>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -44,17 +62,26 @@
         <jmh.version>1.34</jmh.version>
     </properties>
 
+    <developers>
+        <developer>
+            <name>Adrian Tarau</name>
+            <email>adrian@tarau.net</email>
+        </developer>
+    </developers>
+
     <dependencies>
 
-        <!-- Other Serializers -->
+        <!-- Other Serializers (for testing purposes) -->
 
         <dependency>
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo</artifactId>
             <version>5.2.1</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Tests -->
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -109,20 +136,101 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
             </plugin>
         </plugins>
+
     </build>
 
+    <profiles>
+        <profile>
+            <id>dist</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>module-javadocs</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <!-- build aggregate javadoc in parent only -->
+                                <id>default-cli</id>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <overview>avro/src/main/java/overview.html</overview>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <keyname>${gpg.keyname}</keyname>
+                                    <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
 </project>
