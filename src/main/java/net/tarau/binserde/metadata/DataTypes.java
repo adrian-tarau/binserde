@@ -145,7 +145,7 @@ public class DataTypes {
                     return DataType.QUEUE;
                 }
             } else {
-                throw new MetadataException("Unknown collection class " + clazz.getName());
+                return DataType.COLLECTION;
             }
         } else if (ClassUtils.isSubclass(clazz, Map.class)) {
             if (ClassUtils.isSubclass(clazz, SortedMap.class)) {

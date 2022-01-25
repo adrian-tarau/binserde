@@ -35,6 +35,7 @@ class ReflectionCollectionSerializer extends ReflectionFieldSerializer {
     @Override
     void serialize(DataType dataType, Object value, Encoder encoder) throws IOException {
         switch (dataType) {
+            case COLLECTION:
             case LIST:
             case SET:
             case QUEUE:

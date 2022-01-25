@@ -232,8 +232,6 @@ public abstract class AbstractEncoder implements Encoder {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", AbstractEncoder.class.getSimpleName() + "[", "]")
-                .add("position=" + position)
-                .toString();
+        return new StringJoiner(", ", AbstractEncoder.class.getSimpleName() + "[", "]").add("position=" + position).toString();
     }
 }

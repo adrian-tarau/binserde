@@ -34,6 +34,7 @@ public class ReflectionCollectionDeserializer extends ReflectionFieldDeserialize
     @Override
     Object deserialize(DataType dataType, Decoder decoder) throws IOException {
         switch (dataType) {
+            case COLLECTION:
             case LIST:
             case SET:
             case QUEUE:
@@ -68,6 +69,7 @@ public class ReflectionCollectionDeserializer extends ReflectionFieldDeserialize
 
     private Collection<Object> createCollectionType(DataType dataType, int size) {
         switch (dataType) {
+            case COLLECTION:
             case LIST:
                 return new ArrayList<>(size);
             case SET:

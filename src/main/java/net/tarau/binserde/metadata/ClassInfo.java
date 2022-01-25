@@ -210,7 +210,7 @@ public class ClassInfo {
     private void load() {
         Class<?> rootClass = clazz;
         while (rootClass != Object.class) {
-            Field[] fields = clazz.getDeclaredFields();
+            Field[] fields = rootClass.getDeclaredFields();
             for (Field field : fields) {
                 if (Modifier.isStatic(field.getModifiers())) continue;
                 FieldInfo fieldInfo = FieldInfo.create(field);
@@ -233,8 +233,9 @@ public class ClassInfo {
 
     private void register(FieldInfo fieldInfo) {
         String name = fieldInfo.getName();
-        if (fieldsByName.containsKey(name.toLowerCase()))
+        if (fieldsByName.containsKey(name.toLowerCase())) {
             throw new MetadataException("A field with name '" + name + "' is already registered with " + clazz.getName());
+        }
         fieldsByName.put(name.toLowerCase(), fieldInfo);
         fieldsByIndex.add(fieldInfo);
     }
