@@ -24,7 +24,7 @@ class IOUtils {
     /**
      * A hard coded chunk size
      */
-    static final int CHUNK_SIZE = 4 * 1024;
+    static final int CHUNK_SIZE = 16 * 1024;
 
     /**
      * The size of any block header is: 4 header + 2 blocks size + 4 checksum + 1 version

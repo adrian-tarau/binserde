@@ -47,6 +47,7 @@ public class ClassInfo {
     private final String name;
     private final short identifier;
     private final Map<String, FieldInfo> fieldsByName = new HashMap<>();
+    private final Map<Short, FieldInfo> fieldsByTag = new HashMap<>();
     private final List<FieldInfo> fieldsByIndex = new ArrayList<>();
 
     private volatile String signature;
@@ -160,11 +161,11 @@ public class ClassInfo {
     /**
      * Returns a field by its tag.
      *
-     * @param tag the tag, case-insensitive
+     * @param tag the tag
      * @return the field if exists, {@code NULL} otherise
      */
     public FieldInfo findField(int tag) {
-        FieldInfo fieldInfo = fieldsByIndex.get(tag);
+        FieldInfo fieldInfo = fieldsByTag.get((short) tag);
         if (fieldInfo == null) throw new MetadataException("A field with tag '" + tag + "' does not exist");
         return fieldInfo;
     }
@@ -173,12 +174,12 @@ public class ClassInfo {
     /**
      * Returns a field by its tag.
      *
-     * @param tag the tag, case-insensitive
+     * @param tag the tag
      * @return the field
      * @throws MetadataException if the field does not exist
      */
     public FieldInfo getField(int tag) {
-        FieldInfo fieldInfo = fieldsByIndex.get(tag);
+        FieldInfo fieldInfo = fieldsByTag.get((short) tag);
         if (fieldInfo == null) throw new MetadataException("A field with tag '" + tag + "' does not exist");
         return fieldInfo;
     }
@@ -237,6 +238,9 @@ public class ClassInfo {
             throw new MetadataException("A field with name '" + name + "' is already registered with " + clazz.getName());
         }
         fieldsByName.put(name.toLowerCase(), fieldInfo);
+        if (fieldInfo.getTag() != FieldInfo.NO_TAG) {
+            fieldsByTag.put(fieldInfo.getTag(), fieldInfo);
+        }
         fieldsByIndex.add(fieldInfo);
     }
 
