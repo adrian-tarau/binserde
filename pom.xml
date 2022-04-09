@@ -23,7 +23,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.tarau</groupId>
+    <groupId>net.microfalx</groupId>
     <artifactId>binserde</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
