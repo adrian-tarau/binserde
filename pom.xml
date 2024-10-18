@@ -30,7 +30,7 @@
     <parent>
         <groupId>net.microfalx</groupId>
         <artifactId>pom</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </parent>
 
     <name>Binary Serializer / Deserializer</name>
@@ -56,10 +56,7 @@
     <inceptionYear>2022</inceptionYear>
 
     <properties>
-        <junit.version>5.10.3</junit.version>
-        <assertj.version>3.26.3</assertj.version>
-        <jmh.version>1.37</jmh.version>
-        <kryo.version>5.6.0</kryo.version>
+        <bom.version>1.0.1</bom.version>
     </properties>
 
     <developers>
@@ -72,36 +69,14 @@
     <dependencyManagement>
         <dependencies>
 
-            <!-- Other Serializers (for testing purposes) -->
             <dependency>
-                <groupId>com.esotericsoftware</groupId>
-                <artifactId>kryo</artifactId>
-                <version>${kryo.version}</version>
-            </dependency>
-
-            <!-- Tests -->
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>${junit.version}</version>
+                <groupId>net.microfalx.bom</groupId>
+                <artifactId>bom-spring</artifactId>
+                <version>${bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>${assertj.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openjdk.jmh</groupId>
-                <artifactId>jmh-core</artifactId>
-                <version>${jmh.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openjdk.jmh</groupId>
-                <artifactId>jmh-generator-annprocess</artifactId>
-                <version>${jmh.version}</version>
-            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
